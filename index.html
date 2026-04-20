@@ -107,11 +107,9 @@
         .option-label:hover {
             background: var(--primary-light);
         }
-        /* Hide the default radio button */
         .option-label input[type="radio"] {
             display: none;
         }
-        /* Custom radio button */
         .custom-radio {
             width: 20px;
             height: 20px;
@@ -213,7 +211,7 @@
 <div class="container">
     <h1>4K高清肌水光療程 考核測驗</h1>
     <div class="info-bar">
-        <span>📋 測驗機制：共 10 題 (系統隨機抽題)</span>
+        <span>📋 測驗機制：共 10 題 (系統隨機抽題+選項隨機)</span>
         <span>🎯 及格標準：90 分 / 100 分</span>
     </div>
 
@@ -344,7 +342,7 @@ const questionBank = {
         },
         {
             q: "為了建立長期客製化保養觀念，對於「療程規劃」的建議話術為何？",
-            options: ["建議每週做一次，連續做半年最好", "治療期一個月一次，保養期2-3個月一次，建議3次為一療程", "只要做一次就可以解決所有問題，不需要買療程", "療程時間隨意，客人有空想來再來就好"],
+            options: ["建議每週做一次，連續做半年最好", "治療期一個月一次，保養期2-3個月一次，建議3次為一療程", "只要做一次解決所有問題，不需要買療程", "療程時間隨意，客人有空想來再來就好"],
             ans: 1,
             exp: "不要講「你要買療程比較便宜」，應改講「治療期時一個月一次，肌膚狀態好時轉為保養期2-3個月一次就好，我們療程規劃是建議3次為一個療程」。"
         },
@@ -408,13 +406,26 @@ function generateQuiz() {
         const selected = shuffled.slice(0, 2);
         
         selected.forEach(q => {
-            selectedQuestions.push({...q, section});
+            // 隨機更換選項順序
+            let originalOptions = q.options.map((text, index) => ({ text, isCorrect: index === q.ans }));
+            let shuffledOptions = [...originalOptions].sort(() => Math.random() - 0.5);
+            
+            // 找出新的正確答案索引
+            const newAnsIndex = shuffledOptions.findIndex(opt => opt.isCorrect);
+
+            const questionInstance = {
+                ...q,
+                options: shuffledOptions.map(o => o.text),
+                ans: newAnsIndex,
+                section
+            };
+            selectedQuestions.push(questionInstance);
             
             const qDiv = document.createElement('div');
             qDiv.className = 'question-card';
             
             let optionsHTML = '';
-            q.options.forEach((opt, i) => {
+            questionInstance.options.forEach((opt, i) => {
                 optionsHTML += `
                     <label class="option-label" id="label-q${qIndex}-opt${i}">
                         <input type="radio" name="q${qIndex}" value="${i}" onchange="updateSelection('q${qIndex}')">
@@ -436,10 +447,9 @@ function generateQuiz() {
     }
 }
 
-// 點擊選項時的高亮效果
 window.updateSelection = function(groupName) {
-    const labels = document.querySelectorAll(`input[name="${groupName}"]`);
-    labels.forEach((radio, idx) => {
+    const radios = document.querySelectorAll(`input[name="${groupName}"]`);
+    radios.forEach((radio, idx) => {
         const parent = document.getElementById(`label-${groupName}-opt${idx}`);
         if(radio.checked) {
             parent.classList.add('selected');
@@ -447,7 +457,6 @@ window.updateSelection = function(groupName) {
             parent.classList.remove('selected');
         }
     });
-    // 隱藏錯誤提示（如果有的話）
     document.getElementById('error-msg').style.display = 'none';
 }
 
@@ -485,7 +494,6 @@ window.submitQuiz = function() {
         expDiv.innerHTML = resultHTML;
         expDiv.style.display = 'block';
         
-        // 鎖定表單，標示正確答案
         const radios = document.querySelectorAll(`input[name="q${index}"]`);
         radios.forEach((r, idx) => {
             r.disabled = true;
@@ -497,7 +505,6 @@ window.submitQuiz = function() {
         });
     });
 
-    // 顯示分數與結果
     document.getElementById('submit-btn').style.display = 'none';
     const resultContainer = document.getElementById('result-container');
     const finalScore = document.getElementById('final-score');
@@ -510,20 +517,18 @@ window.submitQuiz = function() {
     if (score >= 90) {
         resultContainer.className = 'pass';
         resultStatus.innerText = '🎉 恭喜通過測驗！';
-        resultMsg.innerText = '您已完全掌握 4K高清肌水光療程的專業知識與銷售心法。';
+        resultMsg.innerText = '您已完全掌握 4K高清肌水光療程的專業知識。';
     } else {
         resultContainer.className = 'fail';
         resultStatus.innerText = '⚠ 未達及格標準';
-        resultMsg.innerText = '請查閱上方錯誤題目的解析，並重新複習 SOP 與教戰手冊後再次挑戰！';
+        resultMsg.innerText = '請複習錯誤題目的解析後，再次挑戰！';
     }
     
-    // 平滑捲動到底部觀看成績
     setTimeout(() => {
         resultContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }, 100);
 }
 
-// 初始化執行
 window.onload = generateQuiz;
 </script>
 </body>

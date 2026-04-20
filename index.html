@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4K高清肌水光療程 內部考核系統</title>
+    <style>
+        :root {
+            --primary: #cba052;
+            --primary-light: #fdfaf4;
+            --dark: #333333;
+            --gray: #f5f5f5;
+            --success: #28a745;
+            --danger: #dc3545;
+            --bg-color: #f0f2f5;
+        }
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--dark);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px 10px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+        .info-bar {
+            background: var(--primary-light);
+            padding: 15px 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary);
+            margin-bottom: 30px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #8c6a2c;
+        }
+        .question-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            transition: transform 0.2s ease;
+        }
+        .question-card:hover {
+            border-color: #dcdcdc;
+        }
+        .question-title {
+            font-size: 1.15em;
+            font-weight: bold;
+            margin-bottom: 18px;
+            color: #222;
+        }
+        .section-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 650px) {
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+            .info-bar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+        .option-label {
+            display: flex;
+            align-items: center;
+            background: var(--gray);
+            padding: 14px 16px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95em;
+        }
+        .option-label:hover {
+            background: var(--primary-light);
+        }
+        /* Hide the default radio button */
+        .option-label input[type="radio"] {
+            display: none;
+        }
+        /* Custom radio button */
+        .custom-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: inline-block;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .option-label input[type="radio"]:checked + .custom-radio {
+            border-color: var(--primary);
+        }
+        .option-label input[type="radio"]:checked + .custom-radio::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .option-label.selected {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .btn-submit {
+            display: block;
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.1s;
+            margin-top: 20px;
+        }
+        .btn-submit:hover {
+            background: #b58b42;
+        }
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+        #error-msg {
+            display: none;
+            background: #fde7e9;
+            color: var(--danger);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border: 1px solid #f8cacedc;
+        }
+        #result-container {
+            display: none;
+            text-align: center;
+            margin-top: 40px;
+            padding: 40px 20px;
+            border-radius: 12px;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .score-text {
+            font-size: 4em;
+            font-weight: 900;
+            margin: 15px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .pass { background: linear-gradient(135deg, #e6f4ea 0%, #c8e6c9 100%); color: #1e7e34; border: 1px solid #c3e6cb; }
+        .fail { background: linear-gradient(135deg, #fde7e9 0%, #f8d7da 100%); color: #bd2130; border: 1px solid #f5c6cb; }
+        
+        .explanation {
+            display: none;
+            margin-top: 20px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-left: 5px solid #17a2b8;
+            border-radius: 6px;
+            font-size: 0.95em;
+        }
+        .correct-ans { color: var(--success); font-weight: bold; display: flex; align-items: center; gap: 8px; margin-bottom: 8px;}
+        .wrong-ans { color: var(--danger); font-weight: bold; margin-bottom: 8px;}
+        .exp-text { margin-top: 10px; color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>4K高清肌水光療程 考核測驗</h1>
+    <div class="info-bar">
+        <span>📋 測驗機制：共 10 題 (系統隨機抽題)</span>
+        <span>🎯 及格標準：90 分 / 100 分</span>
+    </div>
+
+    <form id="quiz-form">
+        <div id="questions-wrapper"></div>
+        <div id="error-msg">⚠ 請確認所有題目皆已作答完畢！</div>
+        <button type="button" class="btn-submit" id="submit-btn" onclick="submitQuiz()">送出考卷並觀看解析</button>
+    </form>
+
+    <div id="result-container">
+        <h2 id="result-status" style="margin: 0; font-size: 1.5em;"></h2>
+        <div class="score-text" id="final-score"></div>
+        <p id="result-msg" style="font-size: 1.1em; margin-bottom: 30px;"></p>
+        <button type="button" class="btn-submit" style="max-width: 300px; margin: 0 auto; background: #fff; color: var(--dark); border: 2px solid var(--dark);" onclick="location.reload()">重新挑戰測驗</button>
+    </div>
+</div>
+
+<script>
+const questionBank = {
+    "療程介紹": [
+        {
+            q: "4K高清肌水光針療程中，被稱為「秘泌金鑰」的核心成分為何？",
+            options: ["高濃度玻尿酸與維生素C", "單純傳明酸與肉毒桿菌", "向榮外泌體與植物外泌體專利配方", "PDRN極地防護因子單方精華"],
+            ans: 2,
+            exp: "4K極光導入的「秘泌金鑰」核心為向榮外泌體與植物外泌體的專利配方。"
+        },
+        {
+            q: "關於我們使用的「向榮外泌體」，下列哪一項是其具備的國際級優勢？",
+            options: ["取得韓國KFDA獨家認證", "台灣唯一擁有美國FDA Master File認證", "歐洲EMA最高純度醫療認證", "為市面上唯一不需離心的外泌體"],
+            ans: 1,
+            exp: "向榮生醫科技的產品具有台灣唯一擁有美國FDA Master File認證 (MF 29669)。"
+        },
+        {
+            q: "4K高清肌水光針與坊間「一般水光針」在作用邏輯上最大的差異是什麼？",
+            options: ["一般水光為表層補充，4K水光能深層啟動細胞自我修護", "一般水光維持時間較長，4K水光為短效急救", "一般水光需搭配儀器，4K水光只需手洗塗抹", "兩者成分完全相同，僅在於施打醫師不同"],
+            ans: 0,
+            exp: "一般水光針為表層「補充」營養，而4K極光肌水光針是深層「啟動」細胞自我修護，長效提亮。"
+        },
+        {
+            q: "關於4K水光針的「極地防護專家」，主要是指下列哪一種成分的作用？",
+            options: ["PDRN修護因子", "動力光冷舒緩", "在極端沙漠存活的鎖水大神 (極地防護因子)", "傳明酸"],
+            ans: 2,
+            exp: "術後修復金三角中的「極地防禦專家」為在極端沙漠都能存活的鎖水大神，為肌膚築起隱形水護盾，負責保濕鎮靜。"
+        },
+        {
+            q: "向榮外泌體在細胞修復中扮演什麼角色？",
+            options: ["水分補充站", "青春快遞員，運送修護指令", "表面屏障建立者", "黑色素破壞者"],
+            ans: 1,
+            exp: "外泌體被稱為「細胞界的青春快遞員」，專門運送「修護指令」給老化細胞。"
+        }
+    ],
+    "適應時機與適應症": [
+        {
+            q: "根據教戰守則，下列哪一種顧客族群最適合推薦4K高清肌水光療程？",
+            options: ["想大幅改變臉部骨骼輪廓的人", "醫美術後想恢復快、不想紅太久的人", "想處理嚴重深層斑點的人", "臉部有嚴重化膿性發炎痘痘的人"],
+            ans: 1,
+            exp: "療程適用時機包含醫美術後修護，特別適合「想恢復快、不想紅太久的人」。"
+        },
+        {
+            q: "若顧客表示自己「怎麼擦保養品都不亮」，諮詢師最精準的觀念溝通話術應為下列何者？",
+            options: ["保養品本來就沒效，以後來做療程就好", "因為你的保養品成分不夠好，我們這個最頂級", "因為吸收跟修復都停了，這堂療程能讓皮膚自己變好", "這個療程就是幫你把保養品直接打進去而已"],
+            ans: 2,
+            exp: "面對乾燥暗沉的客人，關鍵成交話術為：「為什麼擦很多都沒用？因為吸收跟修復都停了」，強調療程重點是讓皮膚開始自己變好。"
+        },
+        {
+            q: "下列何者「不屬於」4K水光針強調的主要適應時機？",
+            options: ["乾燥暗沉，覺得擦什麼都不亮的人", "細紋初老，開始覺得皮膚沒精神的人", "有上鏡需求，拍照或活動前需要急救的人", "想要一次性永久消除動態木偶紋的人"],
+            ans: 3,
+            exp: "適應時機主要針對醫美術後修護、乾燥暗沉、細紋初老及上鏡需求，不包含以消除動態深層紋路為主要訴求。"
+        },
+        {
+            q: "若客人主訴「拍照、婚禮、活動前需要急救」，這是屬於哪一種適應時機？",
+            options: ["醫美術後修護", "乾燥暗沉", "細紋初老", "上鏡需求"],
+            ans: 3,
+            exp: "教戰手冊明確指出，拍照、婚禮、活動前急救屬於「上鏡需求」的適應客群。"
+        },
+        {
+            q: "相較於一般水光針容易乾紅，4K水光針能達到「穩定舒緩」與「修復快」的原因在於？",
+            options: ["沒有使用針頭", "加入極地防護因子即刻鎮靜與PDRN加速修復", "只塗抹不注射", "麻藥敷比較久"],
+            ans: 1,
+            exp: "4K水光針搭配獨家PDRN極地防護因子凍膜，術後即刻鎮靜，PDRN加速修復，因此不易泛紅且修復快。"
+        }

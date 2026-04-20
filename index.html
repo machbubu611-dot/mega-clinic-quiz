@@ -29,6 +29,7 @@
             padding: 30px;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            position: relative;
         }
         h1 {
             text-align: center;
@@ -38,6 +39,36 @@
             margin-bottom: 25px;
             font-size: 1.8em;
         }
+
+        /* 懸浮計時器樣式 */
+        .timer-pill {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--primary);
+            padding: 8px 15px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+        }
+        .timer-pill.warning {
+            border-color: var(--danger);
+            color: var(--danger);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
         .info-bar {
             background: var(--primary-light);
             padding: 15px 20px;
@@ -57,10 +88,6 @@
             margin-bottom: 25px;
             border: 1px solid #e0e0e0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-            transition: transform 0.2s ease;
-        }
-        .question-card:hover {
-            border-color: #dcdcdc;
         }
         .question-title {
             font-size: 1.15em;
@@ -84,14 +111,9 @@
             gap: 12px;
         }
         @media (max-width: 650px) {
-            .options-container {
-                grid-template-columns: 1fr;
-            }
-            .info-bar {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
-            }
+            .options-container { grid-template-columns: 1fr; }
+            .info-bar { flex-direction: column; gap: 10px; text-align: center; }
+            .timer-pill { top: 10px; right: 10px; padding: 5px 10px; font-size: 0.9em; }
         }
         .option-label {
             display: flex;
@@ -107,293 +129,132 @@
         .option-label:hover {
             background: var(--primary-light);
         }
-        .option-label input[type="radio"] {
-            display: none;
-        }
+        .option-label input[type="radio"] { display: none; }
         .custom-radio {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border: 2px solid #ccc;
             border-radius: 50%;
             margin-right: 12px;
-            display: inline-block;
             position: relative;
             flex-shrink: 0;
         }
-        .option-label input[type="radio"]:checked + .custom-radio {
-            border-color: var(--primary);
-        }
+        .option-label input[type="radio"]:checked + .custom-radio { border-color: var(--primary); }
         .option-label input[type="radio"]:checked + .custom-radio::after {
-            content: '';
-            width: 10px;
-            height: 10px;
-            background: var(--primary);
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            content: ''; width: 10px; height: 10px; background: var(--primary);
+            border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         }
-        .option-label.selected {
-            border-color: var(--primary);
-            background: var(--primary-light);
-            font-weight: bold;
-            color: var(--primary);
-        }
+        .option-label.selected { border-color: var(--primary); background: var(--primary-light); font-weight: bold; color: var(--primary); }
+        
         .btn-submit {
-            display: block;
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 16px;
-            font-size: 1.2em;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s, transform 0.1s;
-            margin-top: 20px;
+            display: block; width: 100%; background: var(--primary); color: white; border: none;
+            padding: 16px; font-size: 1.2em; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px;
+            transition: background 0.3s;
         }
-        .btn-submit:hover {
-            background: #b58b42;
-        }
-        .btn-submit:active {
-            transform: scale(0.98);
-        }
+        .btn-submit:hover { background: #b58b42; }
+        
         #error-msg {
-            display: none;
-            background: #fde7e9;
-            color: var(--danger);
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 15px;
-            border: 1px solid #f8cacedc;
+            display: none; background: #fde7e9; color: var(--danger); padding: 12px;
+            border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px;
         }
         #result-container {
-            display: none;
-            text-align: center;
-            margin-top: 40px;
-            padding: 40px 20px;
-            border-radius: 12px;
+            display: none; text-align: center; margin-top: 40px; padding: 40px 20px; border-radius: 12px;
             animation: fadeIn 0.5s ease;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .score-text {
-            font-size: 4em;
-            font-weight: 900;
-            margin: 15px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        .pass { background: linear-gradient(135deg, #e6f4ea 0%, #c8e6c9 100%); color: #1e7e34; border: 1px solid #c3e6cb; }
-        .fail { background: linear-gradient(135deg, #fde7e9 0%, #f8d7da 100%); color: #bd2130; border: 1px solid #f5c6cb; }
+        .score-text { font-size: 4em; font-weight: 900; margin: 15px 0; }
+        .pass { background: #e6f4ea; color: #1e7e34; border: 1px solid #c3e6cb; }
+        .fail { background: #fde7e9; color: #bd2130; border: 1px solid #f5c6cb; }
         
         .explanation {
-            display: none;
-            margin-top: 20px;
-            padding: 16px;
-            background: #f8f9fa;
-            border-left: 5px solid #17a2b8;
-            border-radius: 6px;
-            font-size: 0.95em;
+            display: none; margin-top: 20px; padding: 16px; background: #f8f9fa;
+            border-left: 5px solid #17a2b8; border-radius: 6px; font-size: 0.95em; text-align: left;
         }
-        .correct-ans { color: var(--success); font-weight: bold; display: flex; align-items: center; gap: 8px; margin-bottom: 8px;}
-        .wrong-ans { color: var(--danger); font-weight: bold; margin-bottom: 8px;}
+        .correct-ans { color: var(--success); font-weight: bold; }
+        .wrong-ans { color: var(--danger); font-weight: bold; }
         .exp-text { margin-top: 10px; color: #555; }
     </style>
 </head>
 <body>
 
+<!-- 懸浮計時器 -->
+<div class="timer-pill" id="timer-display">
+    <span>⏱</span>
+    <span id="time-left">03:00</span>
+</div>
+
 <div class="container">
     <h1>4K高清肌水光療程 考核測驗</h1>
     <div class="info-bar">
-        <span>📋 測驗機制：共 10 題 (系統隨機抽題+選項隨機)</span>
-        <span>🎯 及格標準：90 分 / 100 分</span>
+        <span>📋 隨機出題：10 題</span>
+        <span>⌛ 限時：3 分鐘</span>
+        <span>🎯 及格：90 分</span>
     </div>
 
     <form id="quiz-form">
         <div id="questions-wrapper"></div>
         <div id="error-msg">⚠ 請確認所有題目皆已作答完畢！</div>
-        <button type="button" class="btn-submit" id="submit-btn" onclick="submitQuiz()">送出考卷並觀看解析</button>
+        <button type="button" class="btn-submit" id="submit-btn" onclick="submitQuiz(false)">手動送出考卷</button>
     </form>
 
     <div id="result-container">
-        <h2 id="result-status" style="margin: 0; font-size: 1.5em;"></h2>
+        <h2 id="result-status"></h2>
         <div class="score-text" id="final-score"></div>
-        <p id="result-msg" style="font-size: 1.1em; margin-bottom: 30px;"></p>
-        <button type="button" class="btn-submit" style="max-width: 300px; margin: 0 auto; background: #fff; color: var(--dark); border: 2px solid var(--dark);" onclick="location.reload()">重新挑戰測驗</button>
+        <p id="result-msg"></p>
+        <button type="button" class="btn-submit" style="max-width: 300px; margin: 20px auto; background: #333;" onclick="location.reload()">重新開始測驗</button>
     </div>
 </div>
 
 <script>
 const questionBank = {
     "療程介紹": [
-        {
-            q: "4K高清肌水光針療程中，被稱為「秘泌金鑰」的核心成分為何？",
-            options: ["高濃度玻尿酸與維生素C", "單純傳明酸與肉毒桿菌", "向榮外泌體與植物外泌體專利配方", "PDRN極地防護因子單方精華"],
-            ans: 2,
-            exp: "4K極光導入的「秘泌金鑰」核心為向榮外泌體與植物外泌體的專利配方。"
-        },
-        {
-            q: "關於我們使用的「向榮外泌體」，下列哪一項是其具備的國際級優勢？",
-            options: ["取得韓國KFDA獨家認證", "台灣唯一擁有美國FDA Master File認證", "歐洲EMA最高純度醫療認證", "為市面上唯一不需離心的外泌體"],
-            ans: 1,
-            exp: "向榮生醫科技的產品具有台灣唯一擁有美國FDA Master File認證 (MF 29669)。"
-        },
-        {
-            q: "4K高清肌水光針與坊間「一般水光針」在作用邏輯上最大的差異是什麼？",
-            options: ["一般水光為表層補充，4K水光能深層啟動細胞自我修護", "一般水光維持時間較長，4K水光為短效急救", "一般水光需搭配儀器，4K水光只需手洗塗抹", "兩者成分完全相同，僅在於施打醫師不同"],
-            ans: 0,
-            exp: "一般水光針為表層「補充」營養，而4K極光肌水光針是深層「啟動」細胞自我修護，長效提亮。"
-        },
-        {
-            q: "關於4K水光針的「極地防護專家」，主要是指下列哪一種成分的作用？",
-            options: ["PDRN修護因子", "動力光冷舒緩", "在極端沙漠存活的鎖水大神 (極地防護因子)", "傳明酸"],
-            ans: 2,
-            exp: "術後修復金三角中的「極地防禦專家」為在極端沙漠都能存活的鎖水大神，為肌膚築起隱形水護盾，負責保濕鎮靜。"
-        },
-        {
-            q: "向榮外泌體在細胞修復中扮演什麼角色？",
-            options: ["水分補充站", "青春快遞員，運送修護指令", "表面屏障建立者", "黑色素破壞者"],
-            ans: 1,
-            exp: "外泌體被稱為「細胞界的青春快遞員」，專門運送「修護指令」給老化細胞。"
-        }
+        { q: "4K高清肌水光針療程中，被稱為「秘泌金鑰」的核心成分為何？", options: ["高濃度玻尿酸與維生素C", "單純傳明酸與肉毒桿菌", "向榮外泌體與植物外泌體專利配方", "PDRN極地防護因子單方精華"], ans: 2, exp: "4K極光導入的「秘泌金鑰」核心為向榮外泌體與植物外泌體的專利配方。" },
+        { q: "關於我們使用的「向榮外泌體」，下列哪一項是其具備的國際級優勢？", options: ["取得韓國KFDA獨家認證", "台灣唯一擁有美國FDA Master File認證", "歐洲EMA最高純度醫療認證", "為市面上唯一不需離心的外泌體"], ans: 1, exp: "向榮生醫科技的產品具有台灣唯一擁有美國FDA Master File認證 (MF 29669)。" },
+        { q: "4K高清肌水光針與坊間「一般水光針」在作用邏輯上最大的差異是什麼？", options: ["一般水光為表層補充，4K水光能深層啟動細胞自我修護", "一般水光維持時間較長，4K水光為短效急救", "一般水光需搭配儀器，4K水光只需手洗塗抹", "兩者成分完全相同，僅在於施打醫師不同"], ans: 0, exp: "一般水光針為表層「補充」營養，而4K極光肌水光針是深層「啟動」細胞自我修護，長效提亮。" },
+        { q: "關於4K水光針的「極地防護專家」，主要是指下列哪一種成分的作用？", options: ["PDRN修護因子", "動力光冷舒緩", "在極端沙漠存活的鎖水大神 (極地防護因子)", "傳明酸"], ans: 2, exp: "術後修復金三角中的「極地防禦專家」為在極端沙漠都能存活的鎖水大神。" },
+        { q: "向榮外泌體在細胞修復中扮演什麼角色？", options: ["水分補充站", "青春快遞員，運送修護指令", "表面屏障建立者", "黑色素破壞者"], ans: 1, exp: "外泌體被稱為「細胞界的青春快遞員」，專門運送「修護指令」。" },
+        { q: "關於 4K 高清肌水光療程所使用的「向榮外泌體」其品質指標與臨床數據，下列敘述何者最能體現其「細胞級」修復的核心優勢？", options: ["CD81 純度指標達 89.7%，且實驗證實彈力蛋白分泌增加幅度（95%）高於膠原蛋白（31%）", "具備日本 PMDA 認證，且實驗證實膠原蛋白分泌增加幅度（95%）遠高於彈力蛋白（31%）", "核心在於高濃度玻尿酸補充，並透過離心 PRP 達到 100% 的黑色素抑制率", "是市面上唯一純度達 100% 的外泌體，且具備 FDA 第一類醫材認證"], ans: 0, exp: "教材指出，向榮外泌體純度指標為 89.7%，數據：彈力蛋白增加 95%、膠原蛋白增加 31%。" }
     ],
     "適應時機與適應症": [
-        {
-            q: "根據教戰守則，下列哪一種顧客族群最適合推薦4K高清肌水光療程？",
-            options: ["想大幅改變臉部骨骼輪廓的人", "醫美術後想恢復快、不想紅太久的人", "想處理嚴重深層斑點的人", "臉部有嚴重化膿性發炎痘痘的人"],
-            ans: 1,
-            exp: "療程適用時機包含醫美術後修護，特別適合「想恢復快、不想紅太久的人」。"
-        },
-        {
-            q: "若顧客表示自己「怎麼擦保養品都不亮」，諮詢師最精準的觀念溝通話術應為下列何者？",
-            options: ["保養品本來就沒效，以後來做療程就好", "因為你的保養品成分不夠好，我們這個最頂級", "因為吸收跟修復都停了，這堂療程能讓皮膚自己變好", "這個療程就是幫你把保養品直接打進去而已"],
-            ans: 2,
-            exp: "面對乾燥暗沉的客人，關鍵成交話術為：「為什麼擦很多都沒用？因為吸收跟修復都停了」，強調療程重點是讓皮膚開始自己變好。"
-        },
-        {
-            q: "下列何者「不屬於」4K水光針強調的主要適應時機？",
-            options: ["乾燥暗沉，覺得擦什麼都不亮的人", "細紋初老，開始覺得皮膚沒精神的人", "有上鏡需求，拍照或活動前需要急救的人", "想要一次性永久消除動態木偶紋的人"],
-            ans: 3,
-            exp: "適應時機主要針對醫美術後修護、乾燥暗沉、細紋初老及上鏡需求，不包含以消除動態深層紋路為主要訴求。"
-        },
-        {
-            q: "若客人主訴「拍照、婚禮、活動前需要急救」，這是屬於哪一種適應時機？",
-            options: ["醫美術後修護", "乾燥暗沉", "細紋初老", "上鏡需求"],
-            ans: 3,
-            exp: "教戰手冊明確指出，拍照、婚禮、活動前急救屬於「上鏡需求」的適應客群。"
-        },
-        {
-            q: "相較於一般水光針容易乾紅，4K水光針能達到「穩定舒緩」與「修復快」的原因在於？",
-            options: ["沒有使用針頭", "加入極地防護因子即刻鎮靜與PDRN加速修復", "只塗抹不注射", "麻藥敷比較久"],
-            ans: 1,
-            exp: "4K水光針搭配獨家PDRN極地防護因子凍膜，術後即刻鎮靜，PDRN加速修復，因此不易泛紅且修復快。"
-        }
+        { q: "根據教戰守則，下列哪一種顧客族群最適合推薦4K高清肌水光療程？", options: ["想大幅改變臉部骨骼輪廓的人", "醫美術後想恢復快、不想紅太久的人", "想處理嚴重深層斑點的人", "臉部有嚴重化膿性發炎痘痘的人"], ans: 1, exp: "特別適合醫美術後想恢復快、不想紅太久的人。" },
+        { q: "若顧客表示自己「怎麼擦保養品都不亮」，諮詢師最精準的溝通話術應為？", options: ["保養品本來就沒效", "因為你的保養品不夠好", "因為吸收跟修復都停了，這堂療程能讓皮膚開始自己變好", "這個療程就是幫你把保養品直接打進去而已"], ans: 2, exp: "關鍵話術：因為吸收跟修復都停了，這堂療程是讓皮膚開始自己變好。" },
+        { q: "下列何者「不屬於」4K水光針強調的主要適應時機？", options: ["乾燥暗沉", "細紋初老", "活動前急救", "永久消除動態木偶紋"], ans: 3, exp: "不包含以消除動態深層肌肉紋路為主要訴求。" },
+        { q: "若客人主訴「活動前需要急救」，這是屬於哪一種適應時機？", options: ["醫美術後修護", "乾燥暗沉", "細紋初老", "上鏡需求"], ans: 3, exp: "教材指出，活動前急救屬於「上鏡需求」。" },
+        { q: "相較於一般水光針，4K水光針能「修復快」的原因在於？", options: ["沒有針頭", "加入極地防護因子與PDRN加速修復", "只塗抹", "麻藥較久"], ans: 1, exp: "加入獨家PDRN與極地防護因子，加速修復並即刻鎮靜。" },
+        { q: "當顧客處於醫美術後想恢復快時，4K 相較於一般水光的核心競爭邏輯為何？", options: ["物理遮蓋紅腫", "透過「外泌體 + PRP」下達指令，啟動細胞自癒機制", "更高濃度麻膏", "生理食鹽水稀釋"], ans: 1, exp: "核心是「下達指令」啟動自癒，而非單純補充。" }
     ],
     "療程流程": [
-        {
-            q: "在「術前準備與洗卸」階段，若客戶指定抽血使用「馬旺管」，費用需額外增加多少？",
-            options: ["1000元", "2000元", "3000元", "5000元"],
-            ans: 2,
-            exp: "SOP中註明，PRP前處理若使用馬旺管，費用需增加3000元。"
-        },
-        {
-            q: "護理站進行藥品調製時，「二合一針劑」的標準配方比例為何？",
-            options: ["肉毒 5U + 傳明酸 1cc", "肉毒 10U + 傳明酸 2.5cc", "玻尿酸 1cc + 肉毒 10U", "PRP 2cc + 肉毒 10U"],
-            ans: 1,
-            exp: "二合一針劑的配方準備標準為：肉毒10U + 傳明酸2.5cc。"
-        },
-        {
-            q: "術後修復封存階段，敷上PDRN凍膜與精華紗布後，需進行哪一項步驟來冷卻穩定肌膚？",
-            options: ["動力光照光 15 分鐘", "皮秒雷射全臉掃射 10 分鐘", "冰敷袋冰鎮 30 分鐘", "熱毛巾熱敷 15 分鐘"],
-            ans: 0,
-            exp: "照光與完診階段，需使用動力光照光15分鐘，以達到冷舒緩與鎖定緊緻的效果。"
-        },
-        {
-            q: "關於外泌體的配方準備，下列敘述何者正確？",
-            options: ["兩種外泌體都需加入3cc D/W稀釋", "向榮外泌體注入3cc D/W稀釋，植物外泌體僅需移除密封蓋", "植物外泌體需加入5cc生理食鹽水", "外泌體需加入二合一針劑中一起混打"],
-            ans: 1,
-            exp: "依據SOP，向榮外泌體以3cc D/W注入凍乾粉稀釋；植物外泌體則是直接移除密封蓋即可。"
-        },
-        {
-            q: "術後導入修復時，「植物外泌體」的使用方式為何？",
-            options: ["直接全臉塗抹完畢，不可帶回", "取5滴加入10g PDRN凍膜攪拌均勻", "混合在動力光儀器中使用", "讓客人帶回家自行塗抹，現場不使用"],
-            ans: 1,
-            exp: "術後導入修復階段，植物外泌體需取5滴加入10g PDRN凍膜攪拌均勻，剩餘的視吸收情況可讓客人帶回。"
-        }
+        { q: "若客戶指定抽血使用「馬旺管」，費用需額外增加多少？", options: ["1000元", "2000元", "3000元", "5000元"], ans: 2, exp: "SOP註明使用馬旺管需增加3000元。" },
+        { q: "護理站進行藥品調製時，「二合一針劑」的標準配方比例為何？", options: ["肉毒 5U + 1cc 傳明酸", "肉毒 10U + 2.5cc 傳明酸", "玻尿酸 1cc + 肉毒 10U", "PRP 2cc + 肉毒 10U"], ans: 1, exp: "二合一針劑標準配方為：肉毒10U + 傳明酸2.5cc。" },
+        { q: "術後修復封存階段，需進行哪一項步驟來冷卻穩定肌膚？", options: ["動力光照光 15 分鐘", "雷射全臉掃射", "冰敷 30 分鐘", "熱敷 15 分鐘"], ans: 0, exp: "使用動力光照光15分鐘達到冷舒緩。" },
+        { q: "關於外泌體的配方準備，下列敘述何者正確？", options: ["兩種外泌體都需稀釋", "向榮注入3cc D/W稀釋，植物僅需移除密封蓋", "植物加入5cc生理食鹽水", "混合二合一"], ans: 1, exp: "向榮需稀釋，植物直接套上導引頭即可使用。" },
+        { q: "「植物外泌體」在導入階段的使用方式為何？", options: ["全臉塗抹完", "取5滴加入10g PDRN凍膜攪拌", "混合在動力光儀器中", "全部帶回回家用"], ans: 1, exp: "SOP規範：取5滴加入10g PDRN凍膜攪拌均勻。" },
+        { q: "在「術後修復封存」階段，關於兩種外泌體的使用邏輯何者符合 SOP？", options: ["向榮全臉塗抹（不帶回）；植物取 5 滴攪拌進凍膜", "植物稀釋導入；向榮加入凍膜", "均在醫師階段與 PRP 混合", "照射後塗抹向榮"], ans: 0, exp: "SOP規範：向榮全臉塗抹完畢，植物取5滴攪拌進凍膜封存。" }
     ],
     "成交關鍵": [
-        {
-            q: "4K高清肌水光療程的「核心主軸」話術，一定要讓客人聽懂的是哪一句？",
-            options: ["這是目前市面上最頂級的保濕療程", "不是補水，是啟動肌膚自己變年輕的能力", "這個療程完全不會痛，而且馬上白一階", "這就是升級版的水光針，比較不會瘀青"],
-            ans: 1,
-            exp: "教戰手冊明示，一定要會講的核心主軸為「不是補水，是啟動肌膚自己變年輕的能力」。"
-        },
-        {
-            q: "教戰守則強調溝通時「一定要統一四件事」，下列哪一項轉換是正確的標準話術？",
-            options: ["不要講「打針很多」，改講「導入修復能量」", "不要講「會痛」，改講「保證完全沒感覺」", "不要講「效果立刻」，改講「三個月後才會看到效果」", "不要講「買療程」，改講「今天先試做一次就好」"],
-            ans: 0,
-            exp: "成交關鍵話術中要求統一四件事，其中一項為：不要講「打針很多」，要改講「導入修復能量」。"
-        },
-        {
-            q: "為了建立長期客製化保養觀念，對於「療程規劃」的建議話術為何？",
-            options: ["建議每週做一次，連續做半年最好", "治療期一個月一次，保養期2-3個月一次，建議3次為一療程", "只要做一次解決所有問題，不需要買療程", "療程時間隨意，客人有空想來再來就好"],
-            ans: 1,
-            exp: "不要講「你要買療程比較便宜」，應改講「治療期時一個月一次，肌膚狀態好時轉為保養期2-3個月一次就好，我們療程規劃是建議3次為一個療程」。"
-        },
-        {
-            q: "教戰手冊中提到，要讓客人了解療程價值（為什麼比較貴），不包含下列哪一個面向？",
-            options: ["肌底啟動 (PRP + 傳明酸肉毒)", "外泌體導入", "極地修護封存 (PDRN)", "原廠儀器探頭成本高"],
-            ans: 3,
-            exp: "療程價值主要在於四大面向：①肌底啟動、②外泌體導入、③極地修護封存、④光能穩定，並無提及探頭成本的訴求。"
-        },
-        {
-            q: "在跟客人溝通「效果」時，要統一將「效果立刻」改講成什麼？",
-            options: ["一次見效，終身保固", "當下亮 + 後續更好", "回家三天後才會有感覺", "效果比雷射還要強一百倍"],
-            ans: 1,
-            exp: "統一話術中明確規定，不要講「效果立刻」，要改講「當下亮 + 後續更好」。"
-        }
+        { q: "4K高清肌水光療程的「核心主軸」話術為何？", options: ["最強保濕", "不是補水，是啟動肌膚自己變年輕的能力", "不會痛馬上白", "不瘀青"], ans: 1, exp: "一定要會講：不是補水，是啟動肌膚自己變年輕的能力。" },
+        { q: "「一定要統一四件事」中，正確的轉換話術是？", options: ["不要講打針，講導入修復能量", "不要講痛，講完全沒感覺", "講效果立刻", "講買療程"], ans: 0, exp: "改講「導入修復能量」更能突顯價值感。" },
+        { q: "對於「療程規劃」的建議話術為何？", options: ["每週一次", "治療期一月一次，保養期2-3月一次，建議3次為一療程", "一次見效", "隨意隨心"], ans: 1, exp: "建立「治療期」與「保養期」的科學保養觀念。" },
+        { q: "了解療程價值（為什麼比較貴）不包含？", options: ["肌底啟動 (PRP+傳明酸肉毒)", "外泌體導入", "修護封存 (PDRN)", "耗材探頭成本"], ans: 3, exp: "價值在於成分邏輯與自癒啟動，非強調探頭成本。" },
+        { q: "成交溝通效果時，應統一改講成？", options: ["一次見效", "當下亮 + 後續更好", "三天後見效", "地表最強"], ans: 1, exp: "強調當下的亮感與後續修復的持續進步。" },
+        { q: "如何對比「一般水光」與「4K 高清肌」突顯價值？", options: ["一般補充但修復慢，4K 啟動且長效穩定", "醫師 vs 美容師", "一週 vs 一年", "一般副作用大"], ans: 0, exp: "關鍵在於「補充」與「啟動」的本質對比。" }
     ],
     "常見Q&A": [
-        {
-            q: "客人詢問：「打這個會不會很痛？」依照標準話術與SOP，下列回覆何者最合適？",
-            options: ["非常痛，但為了漂亮你要忍耐一下", "完全不會痛，就像螞蟻咬一樣", "過程可控舒適，我們會敷麻膏並搭配壓力球或局部輕敲轉移注意力", "這要看醫師技術，我沒辦法跟您保證"],
-            ans: 2,
-            exp: "除了話術上改講「過程可控舒適」 外，SOP中也明訂會提供壓力球與肩膀局部輕敲等貼心安撫動作轉移注意力。"
-        },
-        {
-            q: "客人詢問：「術後回去可以馬上洗臉嗎？」正確的術後衛教指示為何？",
-            options: ["可以，馬上用洗面乳跟自來水洗臉沒問題", "臉部 24 小時內不能接觸自來水，若要清潔請使用生理食鹽水搭配紗布擦拭", "術後三天都不能洗臉，只能用乾毛巾按壓", "建議用溫熱水洗臉，有助於外泌體成分吸收"],
-            ans: 1,
-            exp: "術後衛教明確規範：臉部24小時內不能接觸自來水，若要清潔擦拭請使用生理食鹽水搭配紗布擦拭。"
-        },
-        {
-            q: "客人詢問：「你們的外泌體有什麼特別？」下列哪項數據最能展現其純度與價值？",
-            options: ["我們的外泌體容量很大，一次用量高達 10ml", "我們的外泌體是自家護理站新鮮萃取的", "我們的外泌體 CD81 純度指標高達 89.7%，雜質少且效果更集中", "我們的外泌體保證打完隔天細紋全部消失"],
-            ans: 2,
-            exp: "向榮外泌體主打純度超高、拒絕稀釋，其 CD81 純度指標高達 89.7%。"
-        },
-        {
-            q: "關於向榮外泌體的功效實驗數據，下列哪一項敘述是不正確的？",
-            options: ["彈力蛋白分泌增加95%", "膠原蛋白分泌增加31%", "抑制黑色素生成下降22%", "水分吸收率增加100%"],
-            ans: 3,
-            exp: "簡報提及的具體實驗數據為彈力蛋白增加95%、膠原蛋白增加31%、黑色素下降22%，並無水分吸收率增加的數據。"
-        },
-        {
-            q: "術後會提供客人的「術後護理包」裡面，標準包含哪些物品？",
-            options: ["止痛藥、抗生素、紗布", "棉棒、紗布、紅癢藥膏、生理食鹽水", "洗面乳、化妝水、防曬乳", "壓力球、紓壓小物、透氣膠帶"],
-            ans: 1,
-            exp: "SOP中明訂，提供給客人的術後護理包包含：棉棒、紗布、紅癢藥膏、生理食鹽水。"
-        }
+        { q: "「打這個會不會很痛？」回覆何者最合適？", options: ["很痛要忍", "完全不痛", "過程可控舒適，有壓力球與肩膀輕敲轉移注意力", "看個人耐受度"], ans: 2, exp: "強調舒適度管理與貼心的實體安撫動作。" },
+        { q: "術後回去可以馬上洗臉嗎？", options: ["可以", "24小時內不接觸自來水，可用食鹽水擦拭", "三天不洗臉", "用溫熱水洗"], ans: 1, exp: "衛教規定：24小時內不接觸自來水，預防傷口感染。" },
+        { q: "外泌體數據回覆何者最能展現產品價值？", options: ["容量很大", "新鮮萃取", "CD81 純度指標達 89.7%", "立竿見影效果"], ans: 2, exp: "數據展現專業度：純度高達 89.7%，雜質少效果佳。" },
+        { q: "關於向榮外泌體數據何者「不正確」？", options: ["彈力蛋白分泌增加95%", "膠原蛋白分泌增加31%", "抑制黑色素生成下降22%", "水分吸收率增加100%"], ans: 3, exp: "教材中提到的是彈力、膠原與黑色素數據，並無「水分100%」。" },
+        { q: "在交付「術後護理包」給顧客並進行衛教時，下列關於「居家照護」的指導何者正確？", options: ["24小時內若有清潔需求，應使用生理食鹽水搭配紗布擦拭，避免接觸自來水", "回家後若感到微紅癢是異常現象，應立即停止使用所有護理包物品並就醫", "護理包內已含強力洗面乳，請於當晚立即使用以清潔微小針口", "生理食鹽水是用來稀釋紅癢藥膏後，進行全臉大面積濕敷使用的"], ans: 0, exp: "SOP規範24小時內禁自來水，護理包提供生理食鹽水與紗布是為了安全清潔與緩解不適。" },
+        { q: "「為什麼要選 4K 高清肌？」最精準的回覆是？", options: ["一般是補充短效，4K 是指令啟動細胞自生養分長效光感", "不會紅腫且不用敷麻", "肉毒含量較高", "有防護乳可以擦"], ans: 0, exp: "核心價值在於區分「蓋上去的亮」與「底層長出來的亮」。" }
     ]
 };
 
 let selectedQuestions = [];
+let timeLeft = 180; // 3分鐘
+let timerInterval;
 
 function generateQuiz() {
     selectedQuestions = [];
@@ -401,31 +262,25 @@ function generateQuiz() {
     const wrapper = document.getElementById('questions-wrapper');
     wrapper.innerHTML = '';
 
+    // 每個區塊抽 2 題
     for (const [section, questions] of Object.entries(questionBank)) {
         const shuffled = [...questions].sort(() => 0.5 - Math.random());
         const selected = shuffled.slice(0, 2);
         
         selected.forEach(q => {
-            // 隨機更換選項順序
-            let originalOptions = q.options.map((text, index) => ({ text, isCorrect: index === q.ans }));
-            let shuffledOptions = [...originalOptions].sort(() => Math.random() - 0.5);
-            
-            // 找出新的正確答案索引
-            const newAnsIndex = shuffledOptions.findIndex(opt => opt.isCorrect);
+            // 選項亂序處理
+            let originalOpts = q.options.map((text, idx) => ({ text, isCorrect: idx === q.ans }));
+            let shuffledOpts = [...originalOpts].sort(() => Math.random() - 0.5);
+            const newAnsIndex = shuffledOpts.findIndex(opt => opt.isCorrect);
 
-            const questionInstance = {
-                ...q,
-                options: shuffledOptions.map(o => o.text),
-                ans: newAnsIndex,
-                section
-            };
-            selectedQuestions.push(questionInstance);
+            const qInstance = { ...q, options: shuffledOpts.map(o => o.text), ans: newAnsIndex, section };
+            selectedQuestions.push(qInstance);
             
             const qDiv = document.createElement('div');
             qDiv.className = 'question-card';
             
             let optionsHTML = '';
-            questionInstance.options.forEach((opt, i) => {
+            qInstance.options.forEach((opt, i) => {
                 optionsHTML += `
                     <label class="option-label" id="label-q${qIndex}-opt${i}">
                         <input type="radio" name="q${qIndex}" value="${i}" onchange="updateSelection('q${qIndex}')">
@@ -437,7 +292,7 @@ function generateQuiz() {
 
             qDiv.innerHTML = `
                 <span class="section-badge">${section}</span>
-                <div class="question-title">${qIndex + 1}. ${q.q}</div>
+                <div class="question-title">${qIndex + 1}. ${qInstance.q}</div>
                 <div class="options-container">${optionsHTML}</div>
                 <div class="explanation" id="exp-${qIndex}"></div>
             `;
@@ -445,88 +300,92 @@ function generateQuiz() {
             qIndex++;
         });
     }
+    startTimer();
 }
 
-window.updateSelection = function(groupName) {
-    const radios = document.querySelectorAll(`input[name="${groupName}"]`);
-    radios.forEach((radio, idx) => {
-        const parent = document.getElementById(`label-${groupName}-opt${idx}`);
-        if(radio.checked) {
-            parent.classList.add('selected');
-        } else {
-            parent.classList.remove('selected');
+function startTimer() {
+    const display = document.getElementById('time-left');
+    const pill = document.getElementById('timer-display');
+    
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        if (timeLeft <= 30) pill.classList.add('warning');
+        
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            submitQuiz(true); // 時間到，自動交卷
         }
+    }, 1000);
+}
+
+window.updateSelection = function(g) {
+    document.querySelectorAll(`input[name="${g}"]`).forEach((r, i) => {
+        const p = document.getElementById(`label-${g}-opt${i}`);
+        r.checked ? p.classList.add('selected') : p.classList.remove('selected');
     });
     document.getElementById('error-msg').style.display = 'none';
 }
 
-window.submitQuiz = function() {
+window.submitQuiz = function(isAuto = false) {
     let score = 0;
     let allAnswered = true;
 
-    selectedQuestions.forEach((q, index) => {
-        const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
-        if (!selectedOption) {
-            allAnswered = false;
-        }
+    selectedQuestions.forEach((q, i) => {
+        if (!document.querySelector(`input[name="q${i}"]:checked`)) allAnswered = false;
     });
 
-    if (!allAnswered) {
+    if (!allAnswered && !isAuto) {
         document.getElementById('error-msg').style.display = 'block';
         return;
     }
 
-    selectedQuestions.forEach((q, index) => {
-        const selectedOption = document.querySelector(`input[name="q${index}"]:checked`);
-        const expDiv = document.getElementById(`exp-${index}`);
-        const userAnswer = parseInt(selectedOption.value);
+    clearInterval(timerInterval);
+    document.getElementById('timer-display').style.display = 'none';
+
+    selectedQuestions.forEach((q, i) => {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        const expDiv = document.getElementById(`exp-${i}`);
+        const userAns = selected ? parseInt(selected.value) : -1;
         
-        let resultHTML = '';
+        if (userAns === q.ans) score += 10;
         
-        if (userAnswer === q.ans) {
-            score += 10;
-            resultHTML += `<div class="correct-ans"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> 答對了！正確答案是：${['A','B','C','D'][q.ans]}</div>`;
-        } else {
-            resultHTML += `<div class="wrong-ans">✘ 答錯了。您選擇 ${['A','B','C','D'][userAnswer]}</div>`;
-            resultHTML += `<div class="correct-ans" style="color: #0056b3;">正確答案是：${['A','B','C','D'][q.ans]}</div>`;
-        }
-        resultHTML += `<div class="exp-text"><strong>💡 解析：</strong>${q.exp}</div>`;
-        expDiv.innerHTML = resultHTML;
+        let resHTML = userAns === q.ans ? `<div class="correct-ans">✔ 回答正確！</div>` : `<div class="wrong-ans">✘ ${userAns === -1 ? '時間到未作答' : '回答錯誤'}。正確答案是：${['A','B','C','D'][q.ans]}</div>`;
+        resHTML += `<div class="exp-text"><strong>💡 教材解析：</strong>${q.exp}</div>`;
+        expDiv.innerHTML = resHTML;
         expDiv.style.display = 'block';
         
-        const radios = document.querySelectorAll(`input[name="q${index}"]`);
-        radios.forEach((r, idx) => {
+        // 鎖定選項並標示正確答案
+        document.querySelectorAll(`input[name="q${i}"]`).forEach((r, idx) => {
             r.disabled = true;
-            const label = document.getElementById(`label-q${index}-opt${idx}`);
+            const label = document.getElementById(`label-q${i}-opt${idx}`);
             if(idx === q.ans) {
-                label.style.borderColor = "var(--success)";
+                label.style.border = "2px solid var(--success)";
                 label.style.backgroundColor = "#e6f4ea";
             }
         });
     });
 
     document.getElementById('submit-btn').style.display = 'none';
-    const resultContainer = document.getElementById('result-container');
-    const finalScore = document.getElementById('final-score');
-    const resultStatus = document.getElementById('result-status');
-    const resultMsg = document.getElementById('result-msg');
-
-    resultContainer.style.display = 'block';
-    finalScore.innerText = score + ' 分';
-
+    const resContainer = document.getElementById('result-container');
+    resContainer.style.display = 'block';
+    document.getElementById('final-score').innerText = score + ' 分';
+    
     if (score >= 90) {
-        resultContainer.className = 'pass';
-        resultStatus.innerText = '🎉 恭喜通過測驗！';
-        resultMsg.innerText = '您已完全掌握 4K高清肌水光療程的專業知識。';
+        resContainer.className = 'pass';
+        document.getElementById('result-status').innerText = '🎉 恭喜通過考核！';
+        document.getElementById('result-msg').innerText = '您對 4K高清肌水光療程的專業知識已達標，可正式服務顧客。';
     } else {
-        resultContainer.className = 'fail';
-        resultStatus.innerText = '⚠ 未達及格標準';
-        resultMsg.innerText = '請複習錯誤題目的解析後，再次挑戰！';
+        resContainer.className = 'fail';
+        document.getElementById('result-status').innerText = isAuto ? '⌛ 時間到，未達及格標準' : '⚠ 考核未達標準';
+        document.getElementById('result-msg').innerText = '建議查閱上方解析並再次複習 SOP 教材後重新測驗。';
     }
     
-    setTimeout(() => {
-        resultContainer.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    }, 100);
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
 
 window.onload = generateQuiz;

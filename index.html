@@ -183,14 +183,14 @@
 <!-- 懸浮計時器 -->
 <div class="timer-pill" id="timer-display">
     <span>⏱</span>
-    <span id="time-left">03:00</span>
+    <span id="time-left">01:30</span>
 </div>
 
 <div class="container">
     <h1>4K高清肌水光療程 考核測驗</h1>
     <div class="info-bar">
         <span>📋 隨機出題：10 題</span>
-        <span>⌛ 限時：3 分鐘</span>
+        <span>⌛ 限時：90 秒</span>
         <span>🎯 及格：90 分</span>
     </div>
 
@@ -253,7 +253,7 @@ const questionBank = {
 };
 
 let selectedQuestions = [];
-let timeLeft = 180; // 3分鐘
+let timeLeft = 90; // 改為 90 秒
 let timerInterval;
 
 function generateQuiz() {
@@ -314,6 +314,7 @@ function startTimer() {
         let secs = timeLeft % 60;
         display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         
+        // 剩下 30 秒時閃爍提醒
         if (timeLeft <= 30) pill.classList.add('warning');
         
         if (timeLeft <= 0) {

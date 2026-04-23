@@ -2,844 +2,394 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>夢想慣性清單</title>
-    
-    <!-- Tailwind CSS (主要：動態編譯版) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Tailwind CSS (備用防護網：如果動態版被擋廣告軟體阻擋，2秒後自動切換靜態版) -->
-    <script>
-        setTimeout(function() {
-            if (!document.getElementById('tailwind-play') && !window.tailwind) {
-                var link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = 'https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css';
-                document.head.appendChild(link);
-                console.log("已啟用 Tailwind 靜態備用模式");
-            }
-        }, 1500);
-    </script>
-
-    <!-- Phosphor Icons (優化：改用純 CSS 載入，大幅降低被手機瀏覽器阻擋的機率) -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.min.css">
-    
-    <!-- SortableJS (加入 defer 不阻塞畫面) -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4K高清肌水光療程 內部考核系統</title>
     <style>
-        /* 防止樣式載入前的陽春畫面閃爍 */
-        [x-cloak] { display: none !important; }
-        
-        * { -webkit-tap-highlight-color: transparent; }
-        
-        emoji-picker {
-            width: 100%;
-            height: 350px;
-            --background: #ffffff;
-            --border-color: #e2e8f0;
-            --indicator-color: #6366f1;
-            --input-border-color: #e2e8f0;
-            --outline-color: #6366f1;
+        :root {
+            --primary: #cba052;
+            --primary-light: #fdfaf4;
+            --dark: #333333;
+            --gray: #f5f5f5;
+            --success: #28a745;
+            --danger: #dc3545;
+            --bg-color: #f0f2f5;
+        }
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--dark);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px 10px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            position: relative;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            font-size: 1.8em;
         }
 
-        .sortable-ghost { opacity: 0.4; }
-        .sortable-drag { cursor: grabbing !important; }
+        /* 懸浮計時器樣式 */
+        .timer-pill {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--primary);
+            padding: 8px 15px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+        }
+        .timer-pill.warning {
+            border-color: var(--danger);
+            color: var(--danger);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
 
-        /* 原生 CSS 載入動畫 (不需要依賴外部庫即可顯示) */
-        #startup-loader {
-            position: fixed; inset: 0; background: #f8fafc; z-index: 99999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.5s ease;
+        .info-bar {
+            background: var(--primary-light);
+            padding: 15px 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary);
+            margin-bottom: 30px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #8c6a2c;
         }
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #6366f1;
-            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px;
+        .question-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .question-title {
+            font-size: 1.15em;
+            font-weight: bold;
+            margin-bottom: 18px;
+            color: #222;
+        }
+        .section-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        @media (max-width: 650px) {
+            .options-container { grid-template-columns: 1fr; }
+            .info-bar { flex-direction: column; gap: 10px; text-align: center; }
+            .timer-pill { top: 10px; right: 10px; padding: 5px 10px; font-size: 0.9em; }
+        }
+        .option-label {
+            display: flex;
+            align-items: center;
+            background: var(--gray);
+            padding: 14px 16px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95em;
+        }
+        .option-label:hover {
+            background: var(--primary-light);
+        }
+        .option-label input[type="radio"] { display: none; }
+        .custom-radio {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            margin-right: 12px;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .option-label input[type="radio"]:checked + .custom-radio { border-color: var(--primary); }
+        .option-label input[type="radio"]:checked + .custom-radio::after {
+            content: ''; width: 10px; height: 10px; background: var(--primary);
+            border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        .option-label.selected { border-color: var(--primary); background: var(--primary-light); font-weight: bold; color: var(--primary); }
+        
+        .btn-submit {
+            display: block; width: 100%; background: var(--primary); color: white; border: none;
+            padding: 16px; font-size: 1.2em; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px;
+            transition: background 0.3s;
+        }
+        .btn-submit:hover { background: #b58b42; }
+        
+        #error-msg {
+            display: none; background: #fde7e9; color: var(--danger); padding: 12px;
+            border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px;
+        }
+        #result-container {
+            display: none; text-align: center; margin-top: 40px; padding: 40px 20px; border-radius: 12px;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .score-text { font-size: 4em; font-weight: 900; margin: 15px 0; }
+        .pass { background: #e6f4ea; color: #1e7e34; border: 1px solid #c3e6cb; }
+        .fail { background: #fde7e9; color: #bd2130; border: 1px solid #f5c6cb; }
+        
+        .explanation {
+            display: none; margin-top: 20px; padding: 16px; background: #f8f9fa;
+            border-left: 5px solid #17a2b8; border-radius: 6px; font-size: 0.95em; text-align: left;
+        }
+        .correct-ans { color: var(--success); font-weight: bold; }
+        .wrong-ans { color: var(--danger); font-weight: bold; }
+        .exp-text { margin-top: 10px; color: #555; }
     </style>
-
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('dreamApp', () => ({
-                // 狀態資料
-                dreamText: '',
-                dreamEmoji: '🚀',
-                habits: [
-                    { id: 'h1', frequency: 'daily', action: '', selectedDays: [], monthlyDay: 1 },
-                    { id: 'h2', frequency: 'weekly_custom', action: '', selectedDays: [1, 4], monthlyDay: 1 },
-                    { id: 'h3', frequency: 'monthly', action: '', selectedDays: [], monthlyDay: 15 },
-                ],
-                trackerData: {}, 
-                todayDateStr: '',
-                selectedDate: '', 
-                viewYear: new Date().getFullYear(),
-                viewMonth: new Date().getMonth(),
-                showEmojiPicker: false,
-                
-                // 改期 Modal 狀態
-                showMoveModal: false,
-                moveTaskData: null,
-                targetMoveDate: '',
-
-                // 備註 Modal 狀態
-                showNoteModal: false,
-                noteTaskData: null,
-                currentNoteText: '',
-
-                dayNames: ['日', '一', '二', '三', '四', '五', '六'],
-
-                // 任務排序：指定驗收日 > 每週特定天 > 每日
-                sortTasks(tasks) {
-                    const order = { 'monthly': 1, 'weekly_custom': 2, 'daily': 3 };
-                    return tasks.sort((a, b) => order[a.frequency] - order[b.frequency]);
-                },
-
-                init() {
-                    const today = new Date();
-                    this.todayDateStr = this.formatDateKey(today);
-                    this.viewYear = today.getFullYear();
-                    this.viewMonth = today.getMonth();
-                    this.selectedDate = this.todayDateStr;
-                    
-                    this.loadData();
-                    this.$nextTick(() => {
-                        if (this.$refs.dreamInput) this.resizeTextarea(this.$refs.dreamInput);
-                        this.initSortable();
-                    });
-                    
-                    // 確保 Emoji Picker 載入
-                    setTimeout(() => {
-                        const picker = document.querySelector('emoji-picker');
-                        if(picker) {
-                            picker.addEventListener('emoji-click', event => {
-                                this.dreamEmoji = event.detail.unicode;
-                                this.showEmojiPicker = false;
-                                this.saveData();
-                            });
-                        }
-                    }, 300);
-
-                    // 智慧載入畫面消除邏輯：確保 Tailwind 編譯完成後才顯示畫面
-                    let twCheckCount = 0;
-                    const checkTw = setInterval(() => {
-                        const isTwReady = document.getElementById('tailwind-play') || document.querySelector('style[data-tw-compiled]');
-                        // 若 Tailwind 已就緒，或已等待超過 2.5 秒 (判定為被阻擋)，則強制顯示畫面
-                        if (isTwReady || twCheckCount > 25) {
-                            clearInterval(checkTw);
-                            const loader = document.getElementById('startup-loader');
-                            if(loader) {
-                                loader.style.opacity = '0';
-                                setTimeout(() => loader.style.display = 'none', 500);
-                            }
-                        }
-                        twCheckCount++;
-                    }, 100);
-                },
-
-                initSortable() {
-                    if (this.$refs.habitList) {
-                        new Sortable(this.$refs.habitList, {
-                            handle: '.drag-handle',
-                            animation: 150,
-                            ghostClass: 'sortable-ghost',
-                            dragClass: 'sortable-drag',
-                            onEnd: (evt) => {
-                                if (evt.oldIndex === evt.newIndex) return;
-                                
-                                // 為了不干擾 Alpine.js 的狀態追蹤，先將 Sortable 移動的 DOM 還原
-                                const item = evt.item;
-                                const parent = evt.to;
-                                const sibling = evt.oldIndex < evt.newIndex ? parent.children[evt.oldIndex] : parent.children[evt.oldIndex + 1];
-                                parent.insertBefore(item, sibling);
-
-                                // 修改陣列資料，讓 Alpine 自行完成正確的渲染
-                                const movedItem = this.habits.splice(evt.oldIndex, 1)[0];
-                                this.habits.splice(evt.newIndex, 0, movedItem);
-                                this.saveData();
-                            }
-                        });
-                    }
-                },
-
-                resizeTextarea(el) {
-                    el.style.height = 'auto';
-                    el.style.height = el.scrollHeight + 'px';
-                },
-
-                toggleEmojiPicker() { this.showEmojiPicker = true; },
-                closeEmojiPicker() { this.showEmojiPicker = false; },
-
-                addHabit() {
-                    this.habits.push({
-                        id: 'h_' + Date.now(),
-                        frequency: 'daily',
-                        action: '',
-                        selectedDays: [],
-                        monthlyDay: 1
-                    });
-                    this.saveData();
-                },
-
-                removeHabit(id) {
-                    this.habits = this.habits.filter(h => h.id !== id);
-                    this.saveData();
-                },
-
-                toggleHabitDay(habit, dayIndex) {
-                    const idx = habit.selectedDays.indexOf(dayIndex);
-                    if (idx > -1) {
-                        habit.selectedDays.splice(idx, 1);
-                    } else {
-                        habit.selectedDays.push(dayIndex);
-                        habit.selectedDays.sort();
-                    }
-                    this.saveData();
-                },
-
-                // 改期功能
-                openMoveTaskModal(dateStr, task) {
-                    this.moveTaskData = { sourceDate: dateStr, task: task };
-                    this.targetMoveDate = dateStr;
-                    this.showMoveModal = true;
-                },
-
-                confirmMoveTask() {
-                    if (!this.targetMoveDate || !this.moveTaskData) return;
-                    
-                    const srcDate = this.moveTaskData.sourceDate;
-                    const tgtDate = this.targetMoveDate;
-                    const task = this.moveTaskData.task;
-
-                    if (srcDate === tgtDate) {
-                        this.showMoveModal = false;
-                        return;
-                    }
-
-                    this.trackerData[srcDate] = this.trackerData[srcDate].filter(t => t.id !== task.id);
-
-                    if (!this.trackerData[tgtDate]) {
-                        this.trackerData[tgtDate] = [];
-                    }
-                    
-                    const movedTask = { ...task, id: 't_' + tgtDate + '_' + task.habitId + '_' + Date.now() };
-                    this.trackerData[tgtDate].push(movedTask);
-                    
-                    this.trackerData[tgtDate] = this.sortTasks(this.trackerData[tgtDate]);
-                    this.trackerData = { ...this.trackerData };
-                    
-                    this.saveData();
-                    this.showMoveModal = false;
-
-                    this.selectDate(tgtDate);
-                    
-                    const [y, m, d] = tgtDate.split('-');
-                    this.viewYear = parseInt(y);
-                    this.viewMonth = parseInt(m) - 1;
-                },
-
-                // 備註功能
-                openNoteModal(dateStr, task) {
-                    this.noteTaskData = { date: dateStr, task: task };
-                    this.currentNoteText = task.note || '';
-                    this.showNoteModal = true;
-                },
-
-                confirmNote() {
-                    if (!this.noteTaskData) return;
-                    const { date, task } = this.noteTaskData;
-                    
-                    const targetTask = this.trackerData[date].find(t => t.id === task.id);
-                    if (targetTask) {
-                        targetTask.note = this.currentNoteText.trim();
-                    }
-                    
-                    this.trackerData = { ...this.trackerData }; // 觸發畫面更新
-                    this.saveData();
-                    this.showNoteModal = false;
-                },
-
-                // 展開/更新月曆表邏輯
-                generateTracker() {
-                    const validHabits = this.habits.filter(h => h.action.trim() !== '');
-                    if (validHabits.length === 0) {
-                        alert('請在建立慣性動作區塊，至少輸入一個具體動作！');
-                        return;
-                    }
-
-                    const year = this.viewYear;
-                    const month = this.viewMonth;
-                    const now = new Date();
-                    const realYear = now.getFullYear();
-                    const realMonth = now.getMonth();
-                    const realDay = now.getDate();
-
-                    const isCurrentRealMonth = (year === realYear && month === realMonth);
-                    const daysInMonth = new Date(year, month + 1, 0).getDate();
-                    
-                    const existingData = this.trackerData;
-                    const newMonthData = {};
-
-                    for (let day = 1; day <= daysInMonth; day++) {
-                        const dateObj = new Date(year, month, day);
-                        const dateStr = this.formatDateKey(dateObj);
-                        const dayOfWeek = dateObj.getDay(); 
-
-                        // 中途更新時，今天以前保留不動
-                        if (isCurrentRealMonth && day < realDay) {
-                            if (existingData[dateStr]) {
-                                newMonthData[dateStr] = this.sortTasks([...existingData[dateStr]]);
-                            } else {
-                                newMonthData[dateStr] = [];
-                            }
-                            continue;
-                        }
-                        
-                        const tasksForDay = [];
-
-                        validHabits.forEach(habit => {
-                            let shouldAdd = false;
-
-                            if (habit.frequency === 'daily') {
-                                shouldAdd = true;
-                            } else if (habit.frequency === 'weekly_custom') {
-                                if (habit.selectedDays.includes(dayOfWeek)) shouldAdd = true;
-                            } else if (habit.frequency === 'monthly') {
-                                let targetDay = habit.monthlyDay || daysInMonth;
-                                if (targetDay > daysInMonth) targetDay = daysInMonth; 
-                                if (day === targetDay) shouldAdd = true;
-                            }
-
-                            if (shouldAdd) {
-                                let isCompleted = false;
-                                let existingNote = '';
-                                if (existingData[dateStr]) {
-                                    const existingTask = existingData[dateStr].find(t => t.habitId === habit.id);
-                                    if (existingTask) {
-                                        isCompleted = existingTask.completed;
-                                        existingNote = existingTask.note || '';
-                                    }
-                                }
-
-                                tasksForDay.push({
-                                    id: 't_' + dateStr + '_' + habit.id,
-                                    habitId: habit.id,
-                                    action: habit.action,
-                                    frequency: habit.frequency,
-                                    completed: isCompleted,
-                                    note: existingNote
-                                });
-                            }
-                        });
-
-                        newMonthData[dateStr] = this.sortTasks(tasksForDay);
-                    }
-
-                    for (let dateStr in newMonthData) {
-                        this.trackerData[dateStr] = newMonthData[dateStr];
-                    }
-
-                    this.saveData();
-
-                    if (isCurrentRealMonth) {
-                        this.selectedDate = this.todayDateStr;
-                    } else {
-                        this.selectedDate = this.formatDateKey(new Date(year, month, 1));
-                    }
-
-                    setTimeout(() => {
-                        const trackerSection = document.getElementById('tracker-section');
-                        if (trackerSection) trackerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
-                },
-
-                // Calendar Navigation
-                prevMonth() {
-                    if (this.viewMonth === 0) {
-                        this.viewMonth = 11;
-                        this.viewYear--;
-                    } else {
-                        this.viewMonth--;
-                    }
-                    this.autoSelectDateAfterNav();
-                },
-                nextMonth() {
-                    if (this.viewMonth === 11) {
-                        this.viewMonth = 0;
-                        this.viewYear++;
-                    } else {
-                        this.viewMonth++;
-                    }
-                    this.autoSelectDateAfterNav();
-                },
-                autoSelectDateAfterNav() {
-                    const now = new Date();
-                    if (this.viewYear === now.getFullYear() && this.viewMonth === now.getMonth()) {
-                        this.selectedDate = this.todayDateStr;
-                    } else {
-                        this.selectedDate = this.formatDateKey(new Date(this.viewYear, this.viewMonth, 1));
-                    }
-                },
-
-                selectDate(date) {
-                    this.selectedDate = date;
-                },
-
-                hasTasks(dateStr) {
-                    return this.trackerData[dateStr] && this.trackerData[dateStr].length > 0;
-                },
-
-                isAllTasksCompleted(dateStr) {
-                    const tasks = this.trackerData[dateStr];
-                    if (!tasks || tasks.length === 0) return false;
-                    return tasks.every(task => task.completed);
-                },
-
-                get calendarDays() {
-                    const year = this.viewYear;
-                    const month = this.viewMonth;
-                    const firstDay = new Date(year, month, 1).getDay();
-                    const daysInMonth = new Date(year, month + 1, 0).getDate();
-                    const days = [];
-                    
-                    for(let i=0; i<firstDay; i++) {
-                        days.push({ id: `empty-${i}`, dateStr: '', day: '' });
-                    }
-                    for(let i=1; i<=daysInMonth; i++) {
-                        const d = new Date(year, month, i);
-                        days.push({
-                            id: `day-${i}`,
-                            dateStr: this.formatDateKey(d),
-                            day: i
-                        });
-                    }
-                    return days;
-                },
-
-                get viewMonthName() {
-                    return new Date(this.viewYear, this.viewMonth).toLocaleString('zh-TW', { month: 'long' });
-                },
-
-                get monthlyTasks() {
-                    const prefix = `${this.viewYear}-${String(this.viewMonth + 1).padStart(2, '0')}`;
-                    let allTasks = [];
-                    for (const date in this.trackerData) {
-                        if (date.startsWith(prefix)) {
-                            allTasks = allTasks.concat(this.trackerData[date]);
-                        }
-                    }
-                    return allTasks;
-                },
-
-                get totalTasksCount() { return this.monthlyTasks.length; },
-                get completedTasksCount() { return this.monthlyTasks.filter(t => t.completed).length; },
-                get progressPercentage() {
-                    if (this.totalTasksCount === 0) return 0;
-                    return Math.round((this.completedTasksCount / this.totalTasksCount) * 100);
-                },
-
-                get isTrackerActive() {
-                    return Object.keys(this.trackerData).length > 0;
-                },
-
-                formatDateKey(date) {
-                    const y = date.getFullYear();
-                    const m = String(date.getMonth() + 1).padStart(2, '0');
-                    const d = String(date.getDate()).padStart(2, '0');
-                    return `${y}-${m}-${d}`;
-                },
-
-                formatDateStr(dateStr) {
-                    if (!dateStr) return '';
-                    const [y, m, d] = dateStr.split('-');
-                    return `${parseInt(m)}月${parseInt(d)}日`;
-                },
-
-                getShortDay(dateStr) {
-                    if (!dateStr) return '';
-                    return this.dayNames[new Date(dateStr).getDay()];
-                },
-
-                getFrequencyLabel(freq) {
-                    const labels = { daily: '每日', weekly_custom: '每週', monthly: '每月' };
-                    return labels[freq] || freq;
-                },
-
-                getFrequencyColor(freq) {
-                    const colors = {
-                        daily: 'bg-blue-100 text-blue-700 border-blue-200',
-                        weekly_custom: 'bg-green-100 text-green-700 border-green-200', /* 優化相容性：emerald -> green */
-                        monthly: 'bg-yellow-100 text-yellow-700 border-yellow-200' /* 優化相容性：amber -> yellow */
-                    };
-                    return colors[freq] || 'bg-gray-100 text-gray-700';
-                },
-
-                saveData() {
-                    const data = {
-                        dreamText: this.dreamText,
-                        dreamEmoji: this.dreamEmoji,
-                        habits: this.habits,
-                        trackerData: this.trackerData
-                    };
-                    localStorage.setItem('dreamInertiaData', JSON.stringify(data));
-                },
-
-                loadData() {
-                    const saved = localStorage.getItem('dreamInertiaData');
-                    if (saved) {
-                        try {
-                            const data = JSON.parse(saved);
-                            this.dreamText = data.dreamText || '';
-                            this.dreamEmoji = data.dreamEmoji || '🚀';
-                            
-                            if (data.habits) {
-                                this.habits = data.habits.map(h => ({
-                                    ...h,
-                                    monthlyDay: h.monthlyDay || 1
-                                }));
-                            }
-                            this.trackerData = data.trackerData || {};
-                            
-                            for (let date in this.trackerData) {
-                                this.trackerData[date] = this.sortTasks(this.trackerData[date]);
-                            }
-                        } catch(e) {
-                            console.error('資料載入失敗', e);
-                        }
-                    }
-                }
-            }));
-        });
-    </script>
-
-    <!-- Alpine.js 核心 -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <!-- Emoji Picker 核心 -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1.22.8/index.js"></script>
-
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans antialiased">
+<body>
 
-    <!-- 系統啟動載入畫面 (防止樣式閃爍) -->
-    <div id="startup-loader">
-        <div class="spinner"></div>
-        <p class="font-bold text-gray-500">正在準備你的夢想清單...</p>
+<!-- 懸浮計時器 -->
+<div class="timer-pill" id="timer-display">
+    <span>⏱</span>
+    <span id="time-left">01:30</span>
+</div>
+
+<div class="container">
+    <h1>4K高清肌水光療程 考核測驗</h1>
+    <div class="info-bar">
+        <span>📋 隨機出題：10 題</span>
+        <span>⌛ 限時：90 秒</span>
+        <span>🎯 及格：90 分</span>
     </div>
 
-    <!-- 主程式容器 (加入 x-cloak，並替換所有自訂 Tailwind 為內聯 Style 確保相容) -->
-    <div x-cloak x-data="dreamApp()" class="max-w-md mx-auto bg-white min-h-screen shadow-xl relative flex flex-col pb-24">
+    <form id="quiz-form">
+        <div id="questions-wrapper"></div>
+        <div id="error-msg">⚠ 請確認所有題目皆已作答完畢！</div>
+        <button type="button" class="btn-submit" id="submit-btn" onclick="submitQuiz(false)">手動送出考卷</button>
+    </form>
 
-        <!-- Header -->
-        <header class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white p-5 shadow-md z-10 relative rounded-b-3xl" style="border-bottom-left-radius: 2rem; border-bottom-right-radius: 2rem;">
-            <h1 class="text-2xl font-bold flex items-center justify-center gap-2 tracking-wide">
-                <i class="ph-fill ph-shooting-star text-yellow-300 text-3xl"></i>
-                夢想慣性清單
-            </h1>
-            <p class="text-center text-indigo-100 text-sm mt-1" style="opacity: 0.8;">每天前進一小步，就是達成夢想的最快速度</p>
-        </header>
+    <div id="result-container">
+        <h2 id="result-status"></h2>
+        <div class="score-text" id="final-score"></div>
+        <p id="result-msg"></p>
+        <button type="button" class="btn-submit" style="max-width: 300px; margin: 20px auto; background: #333;" onclick="location.reload()">重新開始測驗</button>
+    </div>
+</div>
 
-        <main class="flex-1 p-5 space-y-8 pt-10" style="margin-top: -1rem;">
+<script>
+const questionBank = {
+    "療程介紹": [
+        { q: "4K高清肌水光針療程中，被稱為「秘泌金鑰」的核心成分為何？", options: ["高濃度玻尿酸與維生素C", "單純傳明酸與肉毒桿菌", "向榮外泌體與植物外泌體專利配方", "PDRN極地防護因子單方精華"], ans: 2, exp: "4K極光導入的「秘泌金鑰」核心為向榮外泌體與植物外泌體的專利配方。" },
+        { q: "關於我們使用的「向榮外泌體」，下列哪一項是其具備的國際級優勢？", options: ["取得韓國KFDA獨家認證", "台灣唯一擁有美國FDA Master File認證", "歐洲EMA最高純度醫療認證", "為市面上唯一不需離心的外泌體"], ans: 1, exp: "向榮生醫科技的產品具有台灣唯一擁有美國FDA Master File認證 (MF 29669)。" },
+        { q: "4K高清肌水光針與坊間「一般水光針」在作用邏輯上最大的差異是什麼？", options: ["一般水光為表層補充，4K水光能深層啟動細胞自我修護", "一般水光維持時間較長，4K水光為短效急救", "一般水光需搭配儀器，4K水光只需手洗塗抹", "兩者成分完全相同，僅在於施打醫師不同"], ans: 0, exp: "一般水光針為表層「補充」營養，而4K極光肌水光針是深層「啟動」細胞自我修護，長效提亮。" },
+        { q: "關於4K水光針的「極地防護專家」，主要是指下列哪一種成分的作用？", options: ["PDRN修護因子", "動力光冷舒緩", "在極端沙漠存活的鎖水大神 (極地防護因子)", "傳明酸"], ans: 2, exp: "術後修復金三角中的「極地防禦專家」為在極端沙漠都能存活的鎖水大神。" },
+        { q: "向榮外泌體在細胞修復中扮演什麼角色？", options: ["水分補充站", "青春快遞員，運送修護指令", "表面屏障建立者", "黑色素破壞者"], ans: 1, exp: "外泌體被稱為「細胞界的青春快遞員」，專門運送「修護指令」。" },
+        { q: "關於 4K 高清肌水光療程所使用的「向榮外泌體」其品質指標與臨床數據，下列敘述何者最能體現其「細胞級」修復的核心優勢？", options: ["CD81 純度指標達 89.7%，且實驗證實彈力蛋白分泌增加幅度（95%）高於膠原蛋白（31%）", "具備日本 PMDA 認證，且實驗證實膠原蛋白分泌增加幅度（95%）遠高於彈力蛋白（31%）", "核心在於高濃度玻尿酸補充，並透過離心 PRP 達到 100% 的黑色素抑制率", "是市面上唯一純度達 100% 的外泌體，且具備 FDA 第一類醫材認證"], ans: 0, exp: "教材指出，向榮外泌體純度指標為 89.7%，數據：彈力蛋白增加 95%、膠原蛋白增加 31%。" }
+    ],
+    "適應時機與適應症": [
+        { q: "根據教戰守則，下列哪一種顧客族群最適合推薦4K高清肌水光療程？", options: ["想大幅改變臉部骨骼輪廓的人", "醫美術後想恢復快、不想紅太久的人", "想處理嚴重深層斑點的人", "臉部有嚴重化膿性發炎痘痘的人"], ans: 1, exp: "特別適合醫美術後想恢復快、不想紅太久的人。" },
+        { q: "若顧客表示自己「怎麼擦保養品都不亮」，諮詢師最精準的溝通話術應為？", options: ["保養品本來就沒效", "因為你的保養品不夠好", "因為吸收跟修復都停了，這堂療程能讓皮膚開始自己變好", "這個療程就是幫你把保養品直接打進去而已"], ans: 2, exp: "關鍵話術：因為吸收跟修復都停了，這堂療程是讓皮膚開始自己變好。" },
+        { q: "下列何者「不屬於」4K水光針強調的主要適應時機？", options: ["乾燥暗沉", "細紋初老", "活動前急救", "永久消除動態木偶紋"], ans: 3, exp: "不包含以消除動態深層肌肉紋路為主要訴求。" },
+        { q: "若客人主訴「活動前需要急救」，這是屬於哪一種適應時機？", options: ["醫美術後修護", "乾燥暗沉", "細紋初老", "上鏡需求"], ans: 3, exp: "教材指出，活動前急救屬於「上鏡需求」。" },
+        { q: "相較於一般水光針，4K水光針能「修復快」的原因在於？", options: ["沒有針頭", "加入極地防護因子與PDRN加速修復", "只塗抹", "麻藥較久"], ans: 1, exp: "加入獨家PDRN與極地防護因子，加速修復並即刻鎮靜。" },
+        { q: "當顧客處於醫美術後想恢復快時，4K 相較於一般水光的核心競爭邏輯為何？", options: ["物理遮蓋紅腫", "透過「外泌體 + PRP」下達指令，啟動細胞自癒機制", "更高濃度麻膏", "生理食鹽水稀釋"], ans: 1, exp: "核心是「下達指令」啟動自癒，而非單純補充。" }
+    ],
+    "療程流程": [
+        { q: "若客戶指定抽血使用「馬旺管」，費用需額外增加多少？", options: ["1000元", "2000元", "3000元", "5000元"], ans: 2, exp: "SOP註明使用馬旺管需增加3000元。" },
+        { q: "護理站進行藥品調製時，「二合一針劑」的標準配方比例為何？", options: ["肉毒 5U + 1cc 傳明酸", "肉毒 10U + 2.5cc 傳明酸", "玻尿酸 1cc + 肉毒 10U", "PRP 2cc + 肉毒 10U"], ans: 1, exp: "二合一針劑標準配方為：肉毒10U + 傳明酸2.5cc。" },
+        { q: "術後修復封存階段，需進行哪一項步驟來冷卻穩定肌膚？", options: ["動力光照光 15 分鐘", "雷射全臉掃射", "冰敷 30 分鐘", "熱敷 15 分鐘"], ans: 0, exp: "使用動力光照光15分鐘達到冷舒緩。" },
+        { q: "關於外泌體的配方準備，下列敘述何者正確？", options: ["兩種外泌體都需稀釋", "向榮注入3cc D/W稀釋，植物僅需移除密封蓋", "植物加入5cc生理食鹽水", "混合二合一"], ans: 1, exp: "向榮需稀釋，植物直接套上導引頭即可使用。" },
+        { q: "「植物外泌體」在導入階段的使用方式為何？", options: ["全臉塗抹完", "取5滴加入10g PDRN凍膜攪拌", "混合在動力光儀器中", "全部帶回回家用"], ans: 1, exp: "SOP規範：取5滴加入10g PDRN凍膜攪拌均勻。" },
+        { q: "在「術後修復封存」階段，關於兩種外泌體的使用邏輯何者符合 SOP？", options: ["向榮全臉塗抹（不帶回）；植物取 5 滴攪拌進凍膜", "植物稀釋導入；向榮加入凍膜", "均在醫師階段與 PRP 混合", "照射後塗抹向榮"], ans: 0, exp: "SOP規範：向榮全臉塗抹完畢，植物取5滴攪拌進凍膜封存。" }
+    ],
+    "成交關鍵": [
+        { q: "4K高清肌水光療程的「核心主軸」話術為何？", options: ["最強保濕", "不是補水，是啟動肌膚自己變年輕的能力", "不會痛馬上白", "不瘀青"], ans: 1, exp: "一定要會講：不是補水，是啟動肌膚自己變年輕的能力。" },
+        { q: "「一定要統一四件事」中，正確的轉換話術是？", options: ["不要講打針，講導入修復能量", "不要講痛，講完全沒感覺", "講效果立刻", "講買療程"], ans: 0, exp: "改講「導入修復能量」更能突顯價值感。" },
+        { q: "對於「療程規劃」的建議話術為何？", options: ["每週一次", "治療期一月一次，保養期2-3月一次，建議3次為一療程", "一次見效", "隨意隨心"], ans: 1, exp: "建立「治療期」與「保養期」的科學保養觀念。" },
+        { q: "了解療程價值（為什麼比較貴）不包含？", options: ["肌底啟動 (PRP+傳明酸肉毒)", "外泌體導入", "修護封存 (PDRN)", "耗材探頭成本"], ans: 3, exp: "價值在於成分邏輯與自癒啟動，非強調探頭成本。" },
+        { q: "成交溝通效果時，應統一改講成？", options: ["一次見效", "當下亮 + 後續更好", "三天後見效", "地表最強"], ans: 1, exp: "強調當下的亮感與後續修復的持續進步。" },
+        { q: "如何對比「一般水光」與「4K 高清肌」突顯價值？", options: ["一般補充但修復慢，4K 啟動且長效穩定", "醫師 vs 美容師", "一週 vs 一年", "一般副作用大"], ans: 0, exp: "關鍵在於「補充」與「啟動」的本質對比。" }
+    ],
+    "常見Q&A": [
+        { q: "「打這個會不會很痛？」回覆何者最合適？", options: ["很痛要忍", "完全不痛", "過程可控舒適，有壓力球與肩膀輕敲轉移注意力", "看個人耐受度"], ans: 2, exp: "強調舒適度管理與貼心的實體安撫動作。" },
+        { q: "術後回去可以馬上洗臉嗎？", options: ["可以", "24小時內不接觸自來水，可用食鹽水擦拭", "三天不洗臉", "用溫熱水洗"], ans: 1, exp: "衛教規定：24小時內不接觸自來水，預防傷口感染。" },
+        { q: "外泌體數據回覆何者最能展現產品價值？", options: ["容量很大", "新鮮萃取", "CD81 純度指標達 89.7%", "立竿見影效果"], ans: 2, exp: "數據展現專業度：純度高達 89.7%，雜質少效果佳。" },
+        { q: "關於向榮外泌體數據何者「不正確」？", options: ["彈力蛋白分泌增加95%", "膠原蛋白分泌增加31%", "抑制黑色素生成下降22%", "水分吸收率增加100%"], ans: 3, exp: "教材中提到的是彈力、膠原與黑色素數據，並無「水分100%」。" },
+        { q: "在交付「術後護理包」給顧客並進行衛教時，下列關於「居家照護」的指導何者正確？", options: ["24小時內若有清潔需求，應使用生理食鹽水搭配紗布擦拭，避免接觸自來水", "回家後若感到微紅癢是異常現象，應立即停止使用所有護理包物品並就醫", "護理包內已含強力洗面乳，請於當晚立即使用以清潔微小針口", "生理食鹽水是用來稀釋紅癢藥膏後，進行全臉大面積濕敷使用的"], ans: 0, exp: "SOP規範24小時內禁自來水，護理包提供生理食鹽水與紗布是為了安全清潔與緩解不適。" },
+        { q: "「為什麼要選 4K 高清肌？」最精準的回覆是？", options: ["一般是補充短效，4K 是指令啟動細胞自生養分長效光感", "不會紅腫且不用敷麻", "肉毒含量較高", "有防護乳可以擦"], ans: 0, exp: "核心價值在於區分「蓋上去的亮」與「底層長出來的亮」。" }
+    ]
+};
+
+let selectedQuestions = [];
+let timeLeft = 90; // 改為 90 秒
+let timerInterval;
+
+function generateQuiz() {
+    selectedQuestions = [];
+    let qIndex = 0;
+    const wrapper = document.getElementById('questions-wrapper');
+    wrapper.innerHTML = '';
+
+    // 每個區塊抽 2 題
+    for (const [section, questions] of Object.entries(questionBank)) {
+        const shuffled = [...questions].sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 2);
+        
+        selected.forEach(q => {
+            // 選項亂序處理
+            let originalOpts = q.options.map((text, idx) => ({ text, isCorrect: idx === q.ans }));
+            let shuffledOpts = [...originalOpts].sort(() => Math.random() - 0.5);
+            const newAnsIndex = shuffledOpts.findIndex(opt => opt.isCorrect);
+
+            const qInstance = { ...q, options: shuffledOpts.map(o => o.text), ans: newAnsIndex, section };
+            selectedQuestions.push(qInstance);
             
-            <!-- 1. Dream Section -->
-            <section class="bg-indigo-50 p-5 rounded-2xl border border-indigo-100 shadow-sm relative z-20">
-                <label class="block text-sm font-bold text-indigo-800 mb-3 flex items-center gap-1">
-                    <i class="ph-bold ph-target"></i> 我的終極夢想
-                </label>
-                <div class="flex relative items-start gap-3">
-                    <button @click="toggleEmojiPicker" class="text-4xl bg-white w-14 h-14 rounded-xl shadow-sm border border-indigo-200 hover:bg-indigo-50 transition flex items-center justify-center flex-shrink-0 relative z-30" x-text="dreamEmoji">
-                    </button>
-                    
-                    <textarea x-ref="dreamInput" x-model="dreamText" @input="resizeTextarea($el); saveData()" 
-                              placeholder="寫下你想達成的夢想..." 
-                              rows="1"
-                              class="w-full text-lg px-4 py-3 rounded-xl border border-indigo-200 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none transition shadow-inner text-indigo-900 font-medium resize-none overflow-hidden" style="min-height: 56px; line-height: 1.5;"></textarea>
-                </div>
+            const qDiv = document.createElement('div');
+            qDiv.className = 'question-card';
+            
+            let optionsHTML = '';
+            qInstance.options.forEach((opt, i) => {
+                optionsHTML += `
+                    <label class="option-label" id="label-q${qIndex}-opt${i}">
+                        <input type="radio" name="q${qIndex}" value="${i}" onchange="updateSelection('q${qIndex}')">
+                        <span class="custom-radio"></span>
+                        <span>${['A', 'B', 'C', 'D'][i]}. ${opt}</span>
+                    </label>
+                `;
+            });
 
-                <div x-show="showEmojiPicker" style="display: none;">
-                    <div @click="closeEmojiPicker" class="fixed inset-0 z-40"></div>
-                    <div x-transition.opacity.duration.200ms
-                         class="absolute left-0 mt-2 z-50 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
-                        <emoji-picker class="light"></emoji-picker>
-                    </div>
-                </div>
-            </section>
+            qDiv.innerHTML = `
+                <span class="section-badge">${section}</span>
+                <div class="question-title">${qIndex + 1}. ${qInstance.q}</div>
+                <div class="options-container">${optionsHTML}</div>
+                <div class="explanation" id="exp-${qIndex}"></div>
+            `;
+            wrapper.appendChild(qDiv);
+            qIndex++;
+        });
+    }
+    startTimer();
+}
 
-            <!-- 2. Habit Setup Section -->
-            <section>
-                <div class="flex justify-between items-center mb-4 px-1">
-                    <h2 class="text-lg font-bold text-gray-700 flex items-center gap-2">
-                        <i class="ph-bold ph-list-dashes text-indigo-500"></i> 建立慣性動作
-                    </h2>
-                    <button @click="addHabit" class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 hover:bg-indigo-200 transition shadow-sm transform active:scale-95">
-                        <i class="ph-bold ph-plus"></i> 新增
-                    </button>
-                </div>
+function startTimer() {
+    const display = document.getElementById('time-left');
+    const pill = document.getElementById('timer-display');
+    
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        let mins = Math.floor(timeLeft / 60);
+        let secs = timeLeft % 60;
+        display.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        // 剩下 30 秒時閃爍提醒
+        if (timeLeft <= 30) pill.classList.add('warning');
+        
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            submitQuiz(true); // 時間到，自動交卷
+        }
+    }, 1000);
+}
 
-                <!-- Habit List -->
-                <div class="space-y-3" x-ref="habitList">
-                    <template x-for="(habit, index) in habits" :key="habit.id">
-                        <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm hover:border-indigo-300 transition"
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 transform translate-y-2"
-                             x-transition:enter-end="opacity-100 transform translate-y-0">
-                            
-                            <div class="flex items-center gap-2">
-                                <i class="ph-bold ph-dots-six-vertical drag-handle cursor-grab hover:text-indigo-500 text-gray-400 text-2xl px-1 flex-shrink-0 transition"></i>
+window.updateSelection = function(g) {
+    document.querySelectorAll(`input[name="${g}"]`).forEach((r, i) => {
+        const p = document.getElementById(`label-${g}-opt${i}`);
+        r.checked ? p.classList.add('selected') : p.classList.remove('selected');
+    });
+    document.getElementById('error-msg').style.display = 'none';
+}
 
-                                <div class="relative flex-shrink-0">
-                                    <select x-model="habit.frequency" @change="saveData" class="appearance-none bg-gray-50 border border-gray-200 text-gray-700 rounded-lg pl-3 pr-8 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer" style="padding-top: 0.625rem; padding-bottom: 0.625rem;">
-                                        <option value="daily">每日</option>
-                                        <option value="weekly_custom">每週特定天</option>
-                                        <option value="monthly">指定驗收日</option>
-                                    </select>
-                                    <i class="ph-bold ph-caret-down absolute right-2 text-gray-400 pointer-events-none" style="top: 50%; transform: translateY(-50%);"></i>
-                                </div>
+window.submitQuiz = function(isAuto = false) {
+    let score = 0;
+    let allAnswered = true;
 
-                                <input type="text" x-model="habit.action" @input="saveData" placeholder="輸入具體動作..." class="flex-1 min-w-0 bg-transparent border-none rounded-lg p-2 text-gray-700 focus:outline-none focus:ring-0 placeholder-gray-400">
-                                
-                                <button @click="removeHabit(habit.id)" class="text-gray-300 hover:text-red-500 p-2 transition flex-shrink-0">
-                                    <i class="ph-fill ph-x-circle text-xl"></i>
-                                </button>
-                            </div>
+    selectedQuestions.forEach((q, i) => {
+        if (!document.querySelector(`input[name="q${i}"]:checked`)) allAnswered = false;
+    });
 
-                            <div x-show="habit.frequency === 'weekly_custom'" x-collapse class="mt-3 pt-3 border-t border-gray-100 ml-8">
-                                <div class="text-xs text-gray-500 mb-2 font-medium">請選擇執行星期 (可複選)：</div>
-                                <div class="flex justify-between gap-1">
-                                    <template x-for="dayIndex in [0,1,2,3,4,5,6]" :key="dayIndex">
-                                        <button @click="toggleHabitDay(habit, dayIndex)"
-                                                :class="habit.selectedDays.includes(dayIndex) ? 'bg-indigo-500 text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'"
-                                                class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition">
-                                            <span x-text="dayNames[dayIndex]"></span>
-                                        </button>
-                                    </template>
-                                </div>
-                            </div>
+    if (!allAnswered && !isAuto) {
+        document.getElementById('error-msg').style.display = 'block';
+        return;
+    }
 
-                            <div x-show="habit.frequency === 'monthly'" x-collapse class="mt-3 pt-3 border-t border-gray-100 ml-8">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs text-gray-500 font-medium">請選擇驗收日：每月</span>
-                                    <input type="number" min="1" max="31" x-model.number="habit.monthlyDay" @input="saveData" class="w-16 p-1 text-center border border-gray-200 rounded-md focus:ring-2 focus:ring-indigo-400 outline-none text-sm font-bold text-indigo-700">
-                                    <span class="text-xs text-gray-500 font-medium">號</span>
-                                </div>
-                                <p class="text-gray-400 mt-1" style="font-size: 10px;">* 若設定日期大於當月天數，將自動提前至月底。</p>
-                            </div>
+    clearInterval(timerInterval);
+    document.getElementById('timer-display').style.display = 'none';
 
-                        </div>
-                    </template>
-                </div>
+    selectedQuestions.forEach((q, i) => {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        const expDiv = document.getElementById(`exp-${i}`);
+        const userAns = selected ? parseInt(selected.value) : -1;
+        
+        if (userAns === q.ans) score += 10;
+        
+        let resHTML = userAns === q.ans ? `<div class="correct-ans">✔ 回答正確！</div>` : `<div class="wrong-ans">✘ ${userAns === -1 ? '時間到未作答' : '回答錯誤'}。正確答案是：${['A','B','C','D'][q.ans]}</div>`;
+        resHTML += `<div class="exp-text"><strong>💡 教材解析：</strong>${q.exp}</div>`;
+        expDiv.innerHTML = resHTML;
+        expDiv.style.display = 'block';
+        
+        // 鎖定選項並標示正確答案
+        document.querySelectorAll(`input[name="q${i}"]`).forEach((r, idx) => {
+            r.disabled = true;
+            const label = document.getElementById(`label-q${i}-opt${idx}`);
+            if(idx === q.ans) {
+                label.style.border = "2px solid var(--success)";
+                label.style.backgroundColor = "#e6f4ea";
+            }
+        });
+    });
 
-                <button @click="generateTracker" class="w-full mt-6 bg-gray-800 text-white font-bold rounded-xl shadow-lg hover:bg-gray-700 transition flex justify-center items-center gap-2 transform active:scale-95" style="padding-top: 0.875rem; padding-bottom: 0.875rem;">
-                    <i class="ph-bold ph-arrows-clockwise text-lg text-yellow-300"></i> 
-                    <span x-text="`展開 / 更新 ${viewMonthName} 任務`"></span>
-                </button>
-            </section>
+    document.getElementById('submit-btn').style.display = 'none';
+    const resContainer = document.getElementById('result-container');
+    resContainer.style.display = 'block';
+    document.getElementById('final-score').innerText = score + ' 分';
+    
+    if (score >= 90) {
+        resContainer.className = 'pass';
+        document.getElementById('result-status').innerText = '🎉 恭喜通過考核！';
+        document.getElementById('result-msg').innerText = '您對 4K高清肌水光療程的專業知識已達標，可正式服務顧客。';
+    } else {
+        resContainer.className = 'fail';
+        document.getElementById('result-status').innerText = isAuto ? '⌛ 時間到，未達及格標準' : '⚠ 考核未達標準';
+        document.getElementById('result-msg').innerText = '建議查閱上方解析並再次複習 SOP 教材後重新測驗。';
+    }
+    
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
 
-            <hr class="border-gray-200" x-show="isTrackerActive">
-
-            <!-- 3. Tracker Section -->
-            <section x-show="isTrackerActive" x-transition.opacity.duration.500ms id="tracker-section">
-                
-                <div class="bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl p-6 text-white shadow-lg mb-6 relative overflow-hidden">
-                    <i class="ph-fill ph-trend-up absolute text-white" style="bottom: -1rem; right: -1rem; font-size: 6rem; opacity: 0.1;"></i>
-                    
-                    <div class="flex justify-between items-end mb-4 relative z-10">
-                        <div>
-                            <h3 class="font-bold text-xl" x-text="viewMonthName + ' 進度'"></h3>
-                            <p class="text-indigo-200 text-sm mt-1" x-text="`已完成 ${completedTasksCount} / 共 ${totalTasksCount} 項任務`"></p>
-                        </div>
-                        <div class="text-4xl font-black flex items-center gap-2 shadow-xl" style="filter: drop-shadow(0 4px 3px rgba(0,0,0,0.1));">
-                            <i x-show="progressPercentage === 100 && totalTasksCount > 0" 
-                               class="ph-fill ph-trophy text-yellow-300 animate-bounce"
-                               style="filter: drop-shadow(0 0 12px rgba(253,224,71,0.9));"
-                               x-transition:enter="transition ease-out duration-500"
-                               x-transition:enter-start="opacity-0 transform scale-50"
-                               x-transition:enter-end="opacity-100 transform scale-100"></i>
-                            <span x-text="`${progressPercentage}%`"></span>
-                        </div>
-                    </div>
-                    
-                    <div class="w-full bg-indigo-900 rounded-full h-3 mb-1 overflow-hidden relative z-10 bg-opacity-40">
-                        <div class="bg-gradient-to-r from-green-400 to-green-300 h-3 rounded-full transition-all duration-1000 ease-out shadow-lg" :style="`width: ${progressPercentage}%`"></div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
-                    <div class="flex justify-between items-center mb-4 px-2">
-                        <button @click="prevMonth" class="p-1 hover:bg-gray-100 text-gray-500 rounded-full transition"><i class="ph-bold ph-caret-left text-xl"></i></button>
-                        <h4 class="font-bold text-lg text-gray-800" x-text="viewYear + '年 ' + (viewMonth + 1) + '月'"></h4>
-                        <button @click="nextMonth" class="p-1 hover:bg-gray-100 text-gray-500 rounded-full transition"><i class="ph-bold ph-caret-right text-xl"></i></button>
-                    </div>
-                    
-                    <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-400 mb-2">
-                        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
-                    </div>
-                    
-                    <div class="grid grid-cols-7 gap-y-2 gap-x-1">
-                        <template x-for="cDay in calendarDays" :key="cDay.id">
-                            <div class="flex justify-center">
-                                <button :disabled="!cDay.day"
-                                        @click="cDay.day ? selectDate(cDay.dateStr) : null"
-                                        class="relative h-10 w-10 flex flex-col items-center justify-center rounded-full text-base transition-all"
-                                        :class="{
-                                            'text-gray-800 hover:bg-gray-100': cDay.day && selectedDate !== cDay.dateStr && cDay.dateStr !== todayDateStr,
-                                            'bg-gray-800 text-white shadow-md': selectedDate === cDay.dateStr && cDay.dateStr !== todayDateStr,
-                                            'text-red-500 font-bold': cDay.dateStr === todayDateStr && selectedDate !== cDay.dateStr,
-                                            'bg-red-500 text-white font-bold shadow-md': selectedDate === cDay.dateStr && cDay.dateStr === todayDateStr,
-                                            'invisible': !cDay.day
-                                        }">
-                                    
-                                    <div x-show="cDay.day && isAllTasksCompleted(cDay.dateStr)"
-                                         class="absolute text-green-500 bg-white rounded-full leading-none shadow-sm z-10"
-                                         style="top: -0.125rem; right: -0.125rem;"
-                                         x-transition:enter="transition ease-out duration-300"
-                                         x-transition:enter-start="opacity-0 transform scale-50"
-                                         x-transition:enter-end="opacity-100 transform scale-100">
-                                        <i class="ph-fill ph-check-circle text-sm" style="font-size: 15px;"></i>
-                                    </div>
-
-                                    <span x-text="cDay.day" class="leading-none mt-1"></span>
-                                    
-                                    <div x-show="cDay.day && hasTasks(cDay.dateStr)" class="flex justify-center items-center w-full px-1 mt-1 gap-0.5" style="height: 6px;">
-                                        <template x-for="(task, idx) in (trackerData[cDay.dateStr] || [])" :key="task.id">
-                                            <div x-show="idx < 3" 
-                                                 class="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors"
-                                                 :class="(selectedDate === cDay.dateStr) ? 'bg-white bg-opacity-90' : 
-                                                         (task.frequency === 'daily' ? 'bg-blue-400' : 
-                                                         (task.frequency === 'weekly_custom' ? 'bg-green-400' : 'bg-yellow-400'))"></div>
-                                        </template>
-                                        <div x-show="trackerData[cDay.dateStr] && trackerData[cDay.dateStr].length > 3" 
-                                             class="w-1 h-1 rounded-full flex-shrink-0"
-                                             :class="(selectedDate === cDay.dateStr) ? 'bg-white bg-opacity-60' : 'bg-gray-300'"></div>
-                                    </div>
-                                </button>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" style="min-height: 150px;">
-                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                        <span class="font-bold text-gray-700 flex items-center gap-2">
-                            <i class="ph-bold ph-list-checks text-indigo-500 text-lg"></i>
-                            <span x-text="formatDateStr(selectedDate) + ' 的任務'"></span>
-                        </span>
-                    </div>
-                    
-                    <div class="divide-y divide-gray-50">
-                        <template x-for="task in (trackerData[selectedDate] || [])" :key="task.id">
-                            <div class="flex items-start p-4 hover:bg-gray-50 transition group">
-                                <label class="relative flex items-center cursor-pointer mr-3 mt-1">
-                                    <input type="checkbox" x-model="task.completed" @change="saveData" class="peer sr-only">
-                                    <div class="w-6 h-6 border-2 border-gray-300 rounded-full peer-checked:bg-green-500 peer-checked:border-green-500 flex items-center justify-center transition-all duration-200 shadow-sm group-hover:border-indigo-300">
-                                        <i class="ph-bold ph-check text-white opacity-0 peer-checked:opacity-100 text-sm transform scale-50 peer-checked:scale-100 transition-transform duration-200"></i>
-                                    </div>
-                                </label>
-                                
-                                <div class="flex-1 flex flex-col cursor-pointer" @click="task.completed = !task.completed; saveData()">
-                                    <span class="text-gray-700 font-medium transition-all duration-200 leading-snug"
-                                          :class="task.completed ? 'text-gray-400 line-through' : ''" x-text="task.action"></span>
-                                    
-                                    <div class="mt-2 flex items-center flex-wrap gap-2">
-                                        <span class="font-bold px-2 py-0.5 rounded-md border flex items-center gap-1 text-xs" style="font-size: 10px;"
-                                              :class="getFrequencyColor(task.frequency)">
-                                            <i class="ph-fill ph-clock text-xs" style="font-size: 10px;"></i>
-                                            <span x-text="getFrequencyLabel(task.frequency)"></span>
-                                        </span>
-                                    </div>
-
-                                    <!-- 顯示備註區塊 -->
-                                    <div x-show="task.note" class="mt-2 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-200 leading-relaxed shadow-sm">
-                                        <div class="flex items-start gap-1">
-                                            <i class="ph-fill ph-push-pin text-indigo-400 mt-1 text-xs flex-shrink-0"></i>
-                                            <span x-text="task.note" class="whitespace-pre-line break-words"></span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="ml-2 flex flex-col gap-1 flex-shrink-0">
-                                    <!-- 備註按鈕 -->
-                                    <button @click.stop="openNoteModal(selectedDate, task)" 
-                                            class="p-2 rounded-xl text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 active:bg-indigo-100 transition"
-                                            title="新增/編輯備註">
-                                        <i class="text-xl" :class="task.note ? 'ph-fill ph-notepad text-indigo-500' : 'ph-bold ph-pencil-simple'"></i>
-                                    </button>
-
-                                    <!-- 改期按鈕 -->
-                                    <button x-show="task.frequency !== 'daily'"
-                                            @click.stop="openMoveTaskModal(selectedDate, task)" 
-                                            class="p-2 rounded-xl text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 active:bg-indigo-100 transition"
-                                            title="更改日期">
-                                        <i class="ph-bold ph-calendar-plus text-xl"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </template>
-
-                        <div x-show="!trackerData[selectedDate] || trackerData[selectedDate].length === 0" class="p-8 text-center text-gray-400">
-                            <i class="ph-fill ph-coffee text-4xl mb-2 text-gray-300"></i>
-                            <p class="text-sm">這天沒有排定任何任務<br>好好休息一下吧！</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <!-- 備註 Modal -->
-        <div x-show="showNoteModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900 bg-opacity-40" style="display: none; backdrop-filter: blur(4px);" 
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all" @click.outside="showNoteModal = false"
-                 x-transition:enter="transition ease-out duration-200 delay-75"
-                 x-transition:enter-start="opacity-0 transform translate-y-4 scale-95"
-                 x-transition:enter-end="opacity-100 transform translate-y-0 scale-100">
-                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2 mb-1">
-                    <i class="ph-bold ph-pencil-simple text-indigo-500"></i> 任務備註
-                </h3>
-                <p class="text-sm font-medium text-gray-500 mb-4 border-b border-gray-100 pb-3" x-text="noteTaskData?.task.action"></p>
-                
-                <textarea x-model="currentNoteText" rows="4" placeholder="寫下今天的執行心得或細節 (例如：做了30分鐘瑜珈、看了原子習慣...)" 
-                          class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none mb-6 text-gray-700 font-medium resize-none leading-relaxed"></textarea>
-                
-                <div class="flex gap-3">
-                    <button @click="showNoteModal = false" class="flex-1 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transform active:scale-95 transition">取消</button>
-                    <button @click="confirmNote" class="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transform active:scale-95 transition">儲存備註</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 改期 Modal -->
-        <div x-show="showMoveModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900 bg-opacity-40" style="display: none; backdrop-filter: blur(4px);" 
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform transition-all" @click.outside="showMoveModal = false"
-                 x-transition:enter="transition ease-out duration-200 delay-75"
-                 x-transition:enter-start="opacity-0 transform translate-y-4 scale-95"
-                 x-transition:enter-end="opacity-100 transform translate-y-0 scale-100">
-                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2 mb-1">
-                    <i class="ph-bold ph-calendar-plus text-indigo-500"></i> 更改任務日期
-                </h3>
-                <p class="text-sm font-medium text-gray-500 mb-4 border-b border-gray-100 pb-3" x-text="moveTaskData?.task.action"></p>
-                
-                <label class="block text-sm font-bold text-gray-700 mb-2">請選擇你要移至的新日期：</label>
-                <input type="date" x-model="targetMoveDate" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none mb-6 text-gray-700 font-medium">
-                
-                <div class="flex gap-3">
-                    <button @click="showMoveModal = false" class="flex-1 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transform active:scale-95 transition">取消</button>
-                    <button @click="confirmMoveTask" class="flex-1 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transform active:scale-95 transition">確定移動</button>
-                </div>
-            </div>
-        </div>
-
-    </div> <!-- /End of main x-data container -->
-
+window.onload = generateQuiz;
+</script>
 </body>
 </html>
